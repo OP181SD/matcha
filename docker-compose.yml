@@ -36,6 +36,31 @@ services:
     networks:
       - matcha-net
 
+  adminer:
+    image: adminer
+    ports:
+      - "8081:8080"
+    networks:
+      - matcha-net
+
+  data-base:
+    image: postgres:16.6
+    container_name: matcha-host
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    networks:
+      - matcha-net
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
 networks:
   matcha-net:
     driver: bridge
+
+volumes:
+  postgres_data:
