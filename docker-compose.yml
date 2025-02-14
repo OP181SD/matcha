@@ -10,9 +10,10 @@ services:
     environment:
       - CHOKIDAR_USEPOLLING=true
     volumes:
-      - ./frontend:/app             # Monte ton code React dans le conteneur
-      - /app/node_modules            # Ne réécris pas les dépendances à chaque fois
-      - ./frontend/build:/app/build  #
+      - ./frontend:/app
+      - /app/node_modules
+      - ./frontend/build:/app/build
+
   nginx:
     build:
       context: .
@@ -22,7 +23,7 @@ services:
     networks:
       - matcha-net
     depends_on:
-      - frontend
+      - frontend  # Nginx dépend de frontend pour s'assurer que le build React est là
     volumes:
       - ./frontend/build:/usr/share/nginx/html
 
@@ -33,8 +34,8 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - ./backend:/app/ 
-      - /app/node_modules 
+      - ./backend:/app
+      - /app/node_modules
     networks:
       - matcha-net
 
