@@ -1,0 +1,41 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/react/Dockerfile
+    ports:
+      - "3000:3000"
+    networks:
+      - matcha-net
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    volumes:
+      - ./frontend:/app
+
+  nginx:
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+    ports:
+      - "8080:8080"
+    networks:
+      - matcha-net
+    depends_on:
+      - frontend
+    volumes:
+      - ./frontend/build:/usr/share/nginx/html
+
+  backend:
+    build:
+      context: .
+      dockerfile: docker/nodejs/Dockerfile
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend:/app/
+    networks:
+      - matcha-net
+
+networks:
+  matcha-net:
+    driver: bridge
