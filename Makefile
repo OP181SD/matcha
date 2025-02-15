@@ -10,7 +10,7 @@ DOCKER_COMPOSE := docker-compose -f $(COMPOSE_FILE)
         adminer-up adminer-down adminer-restart adminer-logs \
         database-up database-down database-restart database-logs \
         build-frontend build-nginx build-backend build-database \
-        clean prune re du
+        clean prune re du clean-node-modules
 
 man:
 	@echo "Commandes disponibles :"
@@ -60,6 +60,8 @@ man:
 	@echo "  make database-logs     Afficher les logs du service database"
 	@echo "  make build-database    Construire l'image de la base de données"
 	@echo ""
+	@echo "Autres commandes :"
+	@echo "  make clean-node-modules Supprimer les dossiers node_modules"
 
 # Commandes générales
 build: 
@@ -79,6 +81,10 @@ logs:
 
 clean:
 	$(DOCKER_COMPOSE) down -v --rmi all --remove-orphans
+
+clean-node-modules:
+	rm -rf ./frontend/node_modules ./backend/node_modules
+	@echo "Dossiers node_modules supprimés."
 
 prune:
 	docker system prune -af

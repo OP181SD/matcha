@@ -7,7 +7,7 @@ app.use(cors());
 app.use(express.json());
 
 app.get('/', (req, res) => {
-  res.send('Hexxxxxxxxxxxxxxxx');
+  res.send('Hexxxxxxxxxxxxxxxxxxx');
 });
 
 const PORT = process.env.PORT || 5000;
