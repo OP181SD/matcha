@@ -12,8 +12,6 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
-      - ./frontend/build:/app/build
-
   nginx:
     build:
       context: .
@@ -23,9 +21,7 @@ services:
     networks:
       - matcha-net
     depends_on:
-      - frontend  # Nginx dépend de frontend pour s'assurer que le build React est là
-    volumes:
-      - ./frontend/build:/usr/share/nginx/html
+      - frontend 
 
   backend:
     build:
