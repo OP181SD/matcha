@@ -1,47 +1,7 @@
+version: '3.8'
+
 services:
-  frontend:
-    build:
-      context: .
-      dockerfile: docker/react/Dockerfile
-    ports:
-      - "3000:3000"
-    networks:
-      - matcha-net
-    environment:
-      - CHOKIDAR_USEPOLLING=true
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-  nginx:
-    build:
-      context: .
-      dockerfile: docker/nginx/Dockerfile
-    ports:
-      - "8080:8080"
-    networks:
-      - matcha-net
-    depends_on:
-      - frontend 
-
-  backend:
-    build:
-      context: .
-      dockerfile: docker/nodejs/Dockerfile
-    ports:
-      - "5000:5000"
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
-    networks:
-      - matcha-net
-
-  adminer:
-    image: adminer
-    ports:
-      - "8081:8080"
-    networks:
-      - matcha-net
-
+  # Service de la base de données
   data-base:
     image: postgres:16.6
     container_name: matcha-host
@@ -57,9 +17,60 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  # Service backend
+  backend:
+    build:
+      context: .
+      dockerfile: docker/nodejs/Dockerfile
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - matcha-net
+
+  # Service frontend
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/react/Dockerfile
+    ports:
+      - "3000:3000"
+    networks:
+      - matcha-net
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+  # Service Nginx
+  nginx:
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+    ports:
+      - "8080:8080"
+    networks:
+      - matcha-net
+    depends_on:
+      - frontend
+      - backend
+
+  # Service Adminer (outil d'administration de base de données)
+  adminer:
+    image: adminer
+    ports:
+      - "8081:8080"
+    networks:
+      - matcha-net
+
+# Réseau utilisé par tous les services
 networks:
   matcha-net:
     driver: bridge
 
+# Volumes pour la persistance des données de la base de données
 volumes:
   postgres_data:
