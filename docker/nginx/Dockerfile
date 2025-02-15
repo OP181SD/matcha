@@ -1,6 +1,5 @@
 FROM nginx:latest
 
-
 COPY ./docker/nginx/config/default.conf /etc/nginx/nginx.conf
 
 EXPOSE 8080
