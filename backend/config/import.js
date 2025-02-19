@@ -1,8 +1,14 @@
 // backend/config/imports.js
-export const dbConfig =
-{
-    username: "user",
-    password: "password",
-    host: " matcha-host",
-    database: "matcha_db"
-};
+
+// Configuration de la base de données PostgreSQL
+export const dbConfig = {
+  
+  user: 'user',                 
+  host: 'data-base',              
+  database: 'matcha_db',         
+  password: 'password',           
+  port: 5432,                
+  };
+
+// Définition du port pour Docker
+export const PORT = 5001;

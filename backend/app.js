@@ -1,30 +1,41 @@
 import express from 'express';
 import cors from 'cors';
-import { dbConfig } from './config/import.js';
+import pg from 'pg';
+import { dbConfig, PORT } from './config/import.js';
+
+const { Client } = pg;
 
 const app = express();
-const port = 5001;
-
 app.use(cors());
 
-app.get('/', (req, res) => {
-  const method = req.method;
-  const URL = req.url;
-  const test = dbConfig.username;
-  res.send(`
-    <html>
-      <head>
-        <title>Affichage Méthode HTTP</title>
-      </head>
-      <body>
-        <h1>Méthode HTTP : ${method}</h1>
-        <h2>MethodURL : ${URL}<h1>
-        <h1>MethodDbConfig ${test}<h1>
-      </body>
-    </html>
-  `);
-});
+const client = new Client(dbConfig);
 
-app.listen(port, () => {
-  console.log("listen on PORT",port);
-})
+const ConnectToBdd = async () => {
+    try {
+        await client.connect();
+        console.log("Connexion à la base de données réussie");
+    } catch (error) {
+        console.error("Échec de la connexion à la base de données", error);
+        throw error;
+    }
+};
+
+const GetPage = () => {
+    app.get('/', (req, res) => {
+        res.send("Connexion réussie");
+    });
+};
+
+const startServer = async () => {
+    try {
+        await ConnectToBdd();
+        GetPage();
+        app.listen(PORT, () => {
+            console.log(`Serveur en écoute sur le port ${PORT}`);
+        });
+    } catch (error) {
+        console.error("Le serveur n'a pas pu démarrer en raison d'une erreur de connexion à la base de données.");
+    }
+};
+
+startServer();
