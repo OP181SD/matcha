@@ -16,6 +16,7 @@ services:
       - matcha-net
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./docker/nodejs/init.sql:/docker-entrypoint-initdb.d/init.sql
 
 
   backend:
@@ -27,11 +28,10 @@ services:
     volumes:
       - ./backend:/app  
       - /app/node_modules 
-    environment:
-      - NODE_ENV=development  
-    command: npm run start 
     networks:
       - matcha-net
+    depends_on:
+      - data-base
 
 
   # Service frontend
