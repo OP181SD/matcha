@@ -17,18 +17,22 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  # Service backend
+
   backend:
     build:
       context: .
       dockerfile: docker/nodejs/Dockerfile
     ports:
-      - "5000:5000"
+      - "5001:5001"
     volumes:
-      - ./backend:/app
-      - /app/node_modules
+      - ./backend:/app  
+      - /app/node_modules 
+    environment:
+      - NODE_ENV=development  
+    command: npm run start 
     networks:
       - matcha-net
+
 
   # Service frontend
   frontend:
