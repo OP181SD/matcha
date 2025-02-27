@@ -32,6 +32,9 @@ services:
       - matcha-net
     depends_on:
       - data-base
+    env_file:
+      - .env 
+      
 
 
   # Service frontend
@@ -61,6 +64,7 @@ services:
     depends_on:
       - frontend
       - backend
+
 
   # Service Adminer (outil d'administration de base de données)
   adminer:
