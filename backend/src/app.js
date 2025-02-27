@@ -1,16 +1,13 @@
-import express from 'express';
-import dotenv from 'dotenv';
+import {app} from '../config/import.js';
 
-const app = express();
-
-dotenv.config();
-console.log(process.env.POSTGRES_USER);
+console.log(process.env.POSTGRES_USER)
 
 app.get('/', (req, res) => {
-    res.send('Hello World');
+    res.send('Helfelo World');
 });
 
 const PORT = process.env.PORT || 5001;
+
 app.listen(PORT, () => {
-    console.log(`Server running eeoeeen port ${PORT}`);
+    console.log(`Server runwddwfeefning eeoeeen port ${PORT}`);
 });
