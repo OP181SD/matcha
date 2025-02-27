@@ -1,15 +1,24 @@
-// backend/config/import.js
 import express from "express";
 import dotenv from "dotenv";
-import pg  from "pg";
+import pg from "pg";
 
-dotenv.config();
-export  const app = express();
-export const PORT = process.env.PORT;
+dotenv.config(); 
+
+export const app = express();
+export const PORT = 5001; 
 const { Pool } = pg;
 
 export const pool = new Pool({
   user: process.env.POSTGRES_USER,   
   password: process.env.POSTGRES_PASSWORD,
-  db: process.env.POSTGRES_DB
+  database: process.env.POSTGRES_DB,
+  host: process.env.POSTGRES_HOST,
+  port: process.env.POSTGRES_PORT
 });
+
+pool.connect()
+  .then(client => {
+    console.log("Connexion réussie !");
+    client.release();
+  })
+  .catch(err => console.error("Erreur de connexion :", err));

@@ -8,10 +8,8 @@ services:
     restart: always
     ports:
       - "5432:5432"
-    environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
+    env_file:
+      - .env 
     networks:
       - matcha-net
     volumes:
@@ -34,9 +32,8 @@ services:
       - data-base
     env_file:
       - .env 
+  
       
-
-
   # Service frontend
   frontend:
     build:

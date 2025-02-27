@@ -1,4 +1,4 @@
-import { app, pool, PORT} from '../config/import.js';
+import { app, PORT} from '../config/import.js';
 
 app.get('/',(req, res) => {
     res.send("Hello");
@@ -6,7 +6,8 @@ app.get('/',(req, res) => {
 
 
 app.listen(PORT, () => {
-    console.log(`Server dwwdwddwddwrunning on ${PORT}`);
+    console.log(` dfewd on ${PORT}`);
 });
 
-console.log("ARRAY",pool);
+
+
