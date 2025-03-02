@@ -16,9 +16,16 @@ export const pool = new Pool({
   port: process.env.POSTGRES_PORT
 });
 
-pool.connect()
-  .then(client => {
-    console.log("Connexion réussie !");
-    client.release();
-  })
-  .catch(err => console.error("Erreur de connexion :", err));
+
+async function connexion() {
+
+  try {
+    const connectPool = await pool.connect();
+    console.log("Connecté à la base de données");
+    connectPool.release();
+  } catch (error) {
+    console.error("Erreur lors de la connexion à la base de données :", error);
+  }
+}
+
+connexion();
