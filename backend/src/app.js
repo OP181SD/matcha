@@ -1,15 +1,7 @@
-import { register } from '../config/register.js';
-import { app, PORT} from '../config/database.js';
-
-app.get('/',(req, res) => {
-    res.send("Hello");
-})
-
+// src/app.js
+import {app, PORT } from '../config/import.js'; 
+import '../config/database.js'; 
 
 app.listen(PORT, () => {
-    console.log(`Port BINDED ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
-
-
-
-console.log(register);
