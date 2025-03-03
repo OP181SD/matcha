@@ -1,4 +1,5 @@
-import { app, PORT} from '../config/import.js';
+import { register } from '../config/register.js';
+import { app, PORT} from '../config/database.js';
 
 app.get('/',(req, res) => {
     res.send("Hello");
@@ -6,8 +7,9 @@ app.get('/',(req, res) => {
 
 
 app.listen(PORT, () => {
-    console.log(` dfewd on ${PORT}`);
+    console.log(`Port BINDED ${PORT}`);
 });
 
 
 
+console.log(register);
