@@ -12,7 +12,7 @@ export const pool = new Pool({
 async function connexion() {
   try {
     const connectPool = await pool.connect();
-    console.log("Connecté à la base de données");
+    console.log("Connecté à la base de données !");
     connectPool.release();
   } catch (error) {
     console.error("Erreur lors de la connexion à la base de données :", error);

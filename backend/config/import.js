@@ -8,3 +8,5 @@ dotenv.config();
 export const app = express();
 export const PORT = 5001; 
 export const { Pool } = pg;
+
+app.use(express.json());

@@ -1,1 +1,0 @@
-export const register = "on es dans le point dentree";
