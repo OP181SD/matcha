@@ -1,5 +1,5 @@
-import { pool } from "../../config/database.js";
-import { app } from "../../config/import.js";
+import { app,bcryptHash } from "../../config/import.js";
+
 
 export const register = "on es dans le point dentree";
 
@@ -26,3 +26,12 @@ app.post('/test-post', async (req, res) => {
         res.status(500).json({success: false, message: "Erreur server"});
     }
 })
+
+
+const hashPassword = async(password) =>
+{
+    const saltRounds = 10;
+    return (await bcryptHash(password,saltRounds));
+};
+
+hashPassword("monMotDepasse123").then(console.log);
