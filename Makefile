@@ -99,6 +99,10 @@ du:
 	$(MAKE) up
 	$(MAKE) build
 
+remove-volumes:
+	docker volume rm $$(docker volume ls -q)
+	@echo "Tous les volumes Docker ont été supprimés."
+
 # Service Frontend
 frontend-up:
 	$(DOCKER_COMPOSE) up -d frontend
@@ -175,3 +179,6 @@ database-logs:
 
 build-database:
 	$(DOCKER_COMPOSE) build data-base
+
+
+

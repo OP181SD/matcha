@@ -1,49 +1,40 @@
-import { app,bcryptHash } from "../../config/import.js";
+import { app, bcryptHash } from "../../config/import.js";
+import { pool } from "../../config/database.js";
 
+export const register = "On est dans le point d'entrée";
 
-export const register = "on es dans le point dentree";
-
-
-// async function createUser(username, email)
-// {
-//     try {
-//         const request = await pool.query("INSERT INTO users (username, email) VALUES ($1, $2)", [username, email]);
-//         console.log("Users ajouter");
-//         return (request);
-//     } catch (error) {
-//         console.log("error",error);
-//     }
-
-// }
-
-// app.post('/test-post', async (req, res) => {
-//     try {
-//         const {username, email} = req.body;
-//         const result = await createUser(username, email);
-//         res.status(200).json({success: true, message: "User ajouter a la base de dooner", data: result})
-//     } catch (error) {
-//         console.log("error", error);
-//         res.status(500).json({success: false, message: "Erreur server"});
-//     }
-// })
-
-
-// const hashPassword = async(password) =>
-// {
-//     const saltRounds = 10;
-//     return (await bcryptHash(password,saltRounds));
-// };
-
-// hashPassword("monMotDepasse123").then(console.log);
-
-
-async function createUser(username,email, password)
-{
+async function createUser(username, email, password) {
     try {
-        const request = await pool.query("INSERT INTO users (username, email) VALUES ($1, $2", [username. email]);
-        console.log("Users ajouter");
-        return (request);
+        const request = await pool.query(
+            "INSERT INTO users (username, email, password) VALUES ($1, $2, $3)",
+            [username, email, password]
+        );
+        console.log("Utilisateur ajouté", request.rows);
+        return request.rows[0];
     } catch (error) {
-        console.log("error",error);
+        console.log("Erreur", error);
     }
 }
+
+app.post('/test-post', async (req, res) => {
+    try {
+        const { username, email, password } = req.body;
+        const hashPassword = await getPassword(password);
+        const result = await createUser(username, email, hashPassword);
+        res.status(200).json({ success: true, message: "Utilisateur ajouté à la base de données", data: result });
+    } catch (error) {
+        console.log("Erreur", error);
+        res.status(500).json({ success: false, message: "Erreur serveur" });
+    }
+});
+
+async function getPassword(password) {
+    try {
+        const hash = await bcryptHash(password, 10);
+        return hash;
+    } catch (error) {
+        console.log("Erreur", error);
+    }
+}
+
+// console.log(getPassword("motdepasse").then(console.log));
