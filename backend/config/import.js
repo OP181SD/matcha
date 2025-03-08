@@ -1,16 +1,14 @@
-// import.js
-import express from "express";
-import dotenv from "dotenv";
-import pg from "pg";
-import bcrypt from "bcrypt";
+import Fastify from "fastify";
+import dotenv  from "dotenv";
+import pg      from "pg";
+import bycrypt from "bcrypt";
 
-dotenv.config(); 
 
-export const app = express();
-export const PORT = 5001; 
+dotenv.config();
+
+export const fastify = Fastify({ logger: true });
+export const PORT = 5001;
 export const { Pool } = pg;
-export const bcryptHash = bcrypt.hash;
-export const bcryptCompare = bcrypt.compare;
+export const bcryptHash = bycrypt.hash;
+export const bycryptCompare = bycrypt.compare;
 
-
-app.use(express.json());

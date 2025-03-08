@@ -9,7 +9,8 @@ export const pool = new Pool({
   port: process.env.POSTGRES_PORT
 });
 
-async function connexion() {
+async function connexion() 
+{
   try {
     const connectPool = await pool.connect();
     console.log("Connecté à la base de données !");
