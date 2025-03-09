@@ -1,25 +1,9 @@
 import { fastify } from '../config/import.js';
-import { InsertUser, DupUsers, } from './models/User.js';
+import authRoutes  from './routes/authRoutes.js';
 
-fastify.post('/register', async (request, reply) => {
-  const { username, email, password } = request.body;
 
-  if (!username || !email || !password) {
-    return reply.code(400).send({ error: 'Tous les champs sont requis.' });
-  }
+fastify.register(authRoutes);
 
-  try {
-    const checkUsers = await DupUsers(username, email);
-    if (checkUsers.error_users)
-      return reply.code(400).send({ error_users: checkUsers.error_users });
-
-    const users = await InsertUser(username, email, password);
-    return reply.status(201).send({ ok: 'Utilisateur ajouté', users });
-
-  } catch (error) {
-    reply.status(500).send({ error: 'Une erreur est survenue' });
-  }
-});
 
 
 fastify.get('/', async () => {
