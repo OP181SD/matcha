@@ -1,4 +1,5 @@
-import { ModelRegister, ModelDuplicate, ModelLogin, } from '../models/User.js';
+import { ModelRegister, ModelDuplicate, ModelLogin, ModelHashedPassword } from '../models/User.js';
+import { byCryptCompare } from '../../config/import.js';
 
 export const AuthRegister = async (request, reply) => {
 
@@ -25,16 +26,21 @@ export const AuthRegister = async (request, reply) => {
 
 
 export const AuthLogin = async (request, reply) => {
-  const { username, email } = request.body;  
+  const { username, email, password } = request.body;
 
+  const user = await ModelLogin(username, email);
 
-  const users = await ModelLogin(username, email);
+  if (!user) {
+    return reply.code(401).send({ error_auth_login: "Utilisateur non trouvé" });
+  }
 
-  if (users.error) {
-    
-    return reply.code(400).send({ error: users.error });
-  } else {
-  
-    return reply.status(200).send({ message: "Utilisateur trouvé", username: users.username });
+ 
+
+  if (username === user.username && email === user.email && await byCryptCompare(password, user.password)) {
+    console.log("OK");
+  }
+  else
+  {
+      console.log("Error");
   }
 };
