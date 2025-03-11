@@ -6,10 +6,11 @@ COPY ./backend/package*.json ./
 
 RUN npm install
 
-RUN npm install pg
+RUN npm install -g nodemon
 
-COPY ./backend /app
+COPY ./backend/ . 
 
 EXPOSE 5001
+
 
 CMD ["npm", "run", "start"]

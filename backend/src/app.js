@@ -24,7 +24,7 @@ try {
   await fastify.listen({ port: 5001, host: '0.0.0.0' });
 
   // Une fois le serveur démarré, tu peux logguer "Connected !!!"
-  console.log("Serveur démarré sur http://localhost:5001");
+  console.log("Serveur démarré! sur http://localhost:5001");
 } catch (error) {
   fastify.log.error(error);
   process.exit(1);
