@@ -23,7 +23,6 @@ services:
       - "5001:5001"
     volumes:
       - ./backend:/app  
-      - ./backend/config:/app/config
     networks:
       - matcha-net
     depends_on:
@@ -45,7 +44,6 @@ services:
       - CHOKIDAR_USEPOLLING=true
     volumes:
       - ./frontend:/app
-      - /app/node_modules
 
   # Service Nginx
   nginx:

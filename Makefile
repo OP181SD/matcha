@@ -10,7 +10,7 @@ DOCKER_COMPOSE := docker-compose -f $(COMPOSE_FILE)
         adminer-up adminer-down adminer-restart adminer-logs \
         database-up database-down database-restart database-logs \
         build-frontend build-nginx build-backend build-database \
-        clean prune re du clean-node-modules
+        clean prune re du clean-node-modules create-node-modules
 
 man:
 	@echo "Commandes disponibles :"
@@ -62,6 +62,7 @@ man:
 	@echo ""
 	@echo "Autres commandes :"
 	@echo "  make clean-node-modules Supprimer les dossiers node_modules"
+	@echo "  make create-node-modules Créer les dossiers node_modules dans frontend et backend"
 
 # Commandes générales
 build: 
@@ -82,9 +83,26 @@ logs:
 clean:
 	$(DOCKER_COMPOSE) down -v --rmi all --remove-orphans
 
+
 clean-node-modules:
-	rm -rf ./frontend/node_modules ./backend/node_modules
-	@echo "Dossiers node_modules supprimés."
+	# Supprimer node_modules du frontend
+	rm -rf ./frontend/node_modules
+	@echo "Dossier node_modules du frontend supprimé."
+	
+	# Supprimer node_modules du backend
+	rm -rf ./backend/node_modules
+	@echo "Dossier node_modules du backend supprimé."
+
+
+create-node-modules:
+	# Réinstaller les dépendances du frontend
+	cd ./frontend && npm install
+	@echo "Dépendances du frontend réinstallées."
+
+	# Réinstaller les dépendances du backend
+	cd ./backend && npm install
+	@echo "Dépendances du backend réinstallées."
+
 
 prune:
 	docker system prune -af
@@ -179,6 +197,3 @@ database-logs:
 
 build-database:
 	$(DOCKER_COMPOSE) build data-base
-
-
-
