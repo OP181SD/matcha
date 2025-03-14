@@ -22,7 +22,7 @@ services:
     ports:
       - "5001:5001"
     volumes:
-      - ./backend:/app  
+      - "${PWD}/backend:/app"
     networks:
       - matcha-net
     depends_on:

@@ -94,16 +94,6 @@ clean-node-modules:
 	@echo "Dossier node_modules du backend supprimé."
 
 
-create-node-modules:
-	# Réinstaller les dépendances du frontend
-	cd ./frontend && npm install
-	@echo "Dépendances du frontend réinstallées."
-
-	# Réinstaller les dépendances du backend
-	cd ./backend && npm install
-	@echo "Dépendances du backend réinstallées."
-
-
 prune:
 	docker system prune -af
 
