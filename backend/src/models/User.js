@@ -29,16 +29,15 @@ export const ModelRegister = async (username, email ,password) => {
 };
 
 
+
+
+
 export const ModelLogin = async (username, email) => {
     const log = 'SELECT * FROM users WHERE username=$1 AND email=$2';
     const { rows } = await fastify.pg.query(log, [username, email]);
 
-    // Log les résultats de la requête
     console.log("Résultats de la requête SQL:", rows);
-
     if (rows.length > 0) {
         return rows[0];
-    } else {
-        return { error_model_login: 'Utilisateur non trouvé' };
     }
 }

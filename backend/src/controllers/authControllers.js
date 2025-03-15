@@ -24,23 +24,17 @@ export const AuthRegister = async (request, reply) => {
   }
 }
 
-
 export const AuthLogin = async (request, reply) => {
   const { username, email, password } = request.body;
 
   const user = await ModelLogin(username, email);
+  if (!user)
+    return reply.code(404).send({error: 'Utilisateur introuvable'});
+  
+  let isPasswordValid = await byCryptCompare(password,user.password);
+  if (!isPasswordValid)
+    return reply.code(404).send({error: 'Mot de passe incorrect.'});
 
-  if (!user) {
-    return reply.code(401).send({ error_auth_login: "Utilisateur non trouvé" });
-  }
+  return reply.code(200).send({ message: 'Connexion réussie', user })
 
- 
-
-  if (username === user.username && email === user.email && await byCryptCompare(password, user.password)) {
-    console.log("OK");
-  }
-  else
-  {
-      console.log("Error");
-  }
 };
