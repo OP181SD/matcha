@@ -36,14 +36,13 @@ export const AuthToken = async (request, reply) => {
   if (!authHeader) {
     return reply.code(401).send({ error_auth_token: 'Token manquant' });
   }
-
   const token = authHeader.split(' ')[1]; 
 
   try {
-    const decoded = verifyToken(token);
-    console.log("Le token est valide", decoded);
-
+    const decoded = verifyToken(token, SECRET_KEY);
+   
     request.user = decoded; 
+
 
     return reply.code(200).send({ message: 'Token valide', user: decoded });
 
@@ -51,6 +50,7 @@ export const AuthToken = async (request, reply) => {
     console.log('Token invalide ou expiré');
     return reply.code(401).send({ error: 'Token invalide ou expiré' });
   }
+
 };
 
 

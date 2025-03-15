@@ -26,7 +26,7 @@ export const ModelLogin = async (username, email) => {
     const log = 'SELECT * FROM users WHERE username=$1 AND email=$2';
     const { rows } = await fastify.pg.query(log, [username, email]);
 
-    console.log("Résultats de la requête SQL:", rows);
+    // console.log("Résultats de la requête SQL:", rows);
     if (rows.length > 0) {
         return rows[0];
     }

@@ -19,14 +19,14 @@ fastify.get('/', async () => {
 });
 
 
-// fastify.get('/protected', {
-//   preHandler: AuthToken, 
-// }, async (request, reply) => {
-//   return reply.code(200).send({
-//     message: 'Vous avez accès aux données protégées',
-//     user: request.user
-//   });
-// });
+fastify.get('/protected', {
+  preHandler: AuthToken, 
+}, async (request, reply) => {
+  return reply.code(200).send({
+    message: 'Vous avez accès aux données protégées',
+    user: request.user
+  });
+});
 
 
 try {
