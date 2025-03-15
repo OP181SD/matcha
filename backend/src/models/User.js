@@ -1,6 +1,5 @@
 import { fastify, byCryptHash } from "../../config/import.js";
 
-
 export const ModelDuplicate = async (username, email) => {
     const users = 'SELECT * FROM users WHERE username=$1 OR email=$2';
     const { rowCount } = await fastify.pg.query(users, [username, email]);
@@ -11,25 +10,16 @@ export const ModelDuplicate = async (username, email) => {
 };
 
 export const ModelHashedPassword = async (password) => {
-   const hashedPassword = await byCryptHash(password,10);
-   return (hashedPassword);
-}
-
-
-export const ModelRegister = async (username, email ,password) => {
-    try {
-        const insert = `INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING *;`;
-        const hashedPassword = await ModelHashedPassword(password);
-        const { rows } = await fastify.pg.query(insert, [username, email, hashedPassword]);
-        return rows;
-    } catch (error) {
-        console.error("Error lors de l'insertion de l'utilisateur :", error);
-        throw new Error("Une erreur est survenue lors de la création du compte.");
-    }
+   const hashedPassword = await byCryptHash(password, 10);
+   return hashedPassword;
 };
 
-
-
+export const ModelRegister = async (username, email ,password) => {
+    const insert = `INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING *;`;
+    const hashedPassword = await ModelHashedPassword(password);
+    const { rows } = await fastify.pg.query(insert, [username, email, hashedPassword]);
+    return rows;
+};
 
 
 export const ModelLogin = async (username, email) => {
@@ -40,4 +30,4 @@ export const ModelLogin = async (username, email) => {
     if (rows.length > 0) {
         return rows[0];
     }
-}
+};

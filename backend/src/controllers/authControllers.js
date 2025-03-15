@@ -1,5 +1,5 @@
 import { ModelRegister, ModelDuplicate, ModelLogin, ModelHashedPassword } from '../models/User.js';
-import { byCryptCompare } from '../../config/import.js';
+import { byCryptCompare, generateToken, verifyToken, SECRET_KEY } from '../../config/import.js';
 
 export const AuthRegister = async (request, reply) => {
 
@@ -29,12 +29,18 @@ export const AuthLogin = async (request, reply) => {
 
   const user = await ModelLogin(username, email);
   if (!user)
-    return reply.code(404).send({error: 'Utilisateur introuvable'});
-  
-  let isPasswordValid = await byCryptCompare(password,user.password);
+    return reply.code(404).send({ error: 'Utilisateur introuvable' });
+
+  let isPasswordValid = await byCryptCompare(password, user.password);
   if (!isPasswordValid)
-    return reply.code(404).send({error: 'Mot de passe incorrect.'});
+    return reply.code(404).send({ error: 'Mot de passe incorrect.' });
 
-  return reply.code(200).send({ message: 'Connexion réussie', user })
+  const payload = { username, email };
+  const token = generateToken(payload, SECRET_KEY, { expiresIn: '1h' });
 
+  return reply.code(200).send({
+    message: 'Connexion réussie',
+    user,
+    token
+  });
 };
