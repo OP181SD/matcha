@@ -6,9 +6,9 @@ In the project directory, you can run the following commands:
 
 This command will build all Docker images and start all services (frontend, backend, Nginx, and database). It sets up the project in a development environment.
 
-### `make clean-node-modules && make create-node-modules`
+### `make clean-node-modules`
 
 If you want to clean the environment and reinstall the dependencies, you can run:
 
 ```bash
-make clean-node-modules && make create-node-modules
+make clean-node-modules
