@@ -17,12 +17,42 @@ export const AuthRegister = async (request, reply) => {
         return (reply.code(400).send({error_users: checkUsers.error_users}));
     }
     const users = await ModelRegister(username,email,password);
-    return reply.status(201).send({ ok: 'Users ajouter'}, users);
+    return reply.code(201).send({ ok: 'Users ajouter'}, users);
 
   } catch (error) {
-    return (reply.status(500).send({error: 'Une erreur est survenu '}));
+    return (reply.code(500).send({error: 'Une erreur est survenu '}));
   }
 }
+
+export const getToken = async (username, email) => 
+  {
+  const payload = { username, email };
+  return generateToken(payload,SECRET_KEY); 
+};
+
+export const AuthToken = async (request, reply) => {
+  const authHeader = request.headers['authorization'];
+
+  if (!authHeader) {
+    return reply.code(401).send({ error_auth_token: 'Token manquant' });
+  }
+
+  const token = authHeader.split(' ')[1]; 
+
+  try {
+    const decoded = verifyToken(token);
+    console.log("Le token est valide", decoded);
+
+    request.user = decoded; 
+
+    return reply.code(200).send({ message: 'Token valide', user: decoded });
+
+  } catch (error) {
+    console.log('Token invalide ou expiré');
+    return reply.code(401).send({ error: 'Token invalide ou expiré' });
+  }
+};
+
 
 export const AuthLogin = async (request, reply) => {
   const { username, email, password } = request.body;
@@ -35,17 +65,7 @@ export const AuthLogin = async (request, reply) => {
   if (!isPasswordValid)
     return reply.code(404).send({ error: 'Mot de passe incorrect.' });
 
-
-  const payload = { username, email };
-  const token = generateToken(payload, SECRET_KEY, { expiresIn: '1h' });
-
-  try {
-    const isTokenValid = verifyToken(token, SECRET_KEY);
-    console.log("Le token est valid",isTokenValid);
-  } catch (error) {
-    console.log('Token invalide ou expiré');
-    return reply.code(401).send({ error: 'Token invalide ou expiré' });
-  }
+  const token = await getToken(username, email);
 
   return reply.code(200).send({
     message: 'Connexion réussie',
@@ -53,3 +73,5 @@ export const AuthLogin = async (request, reply) => {
     token
   });
 };
+
+

@@ -1,5 +1,7 @@
 import { fastify } from '../config/import.js';
+import { AuthToken } from './controllers/authControllers.js';
 import authRoutes  from './routes/authRoutes.js';
+
 
 fastify.register(authRoutes);
 
@@ -15,6 +17,16 @@ fastify.get('/', async () => {
     client.release();
   }
 });
+
+
+// fastify.get('/protected', {
+//   preHandler: AuthToken, 
+// }, async (request, reply) => {
+//   return reply.code(200).send({
+//     message: 'Vous avez accès aux données protégées',
+//     user: request.user
+//   });
+// });
 
 
 try {
