@@ -35,8 +35,17 @@ export const AuthLogin = async (request, reply) => {
   if (!isPasswordValid)
     return reply.code(404).send({ error: 'Mot de passe incorrect.' });
 
+
   const payload = { username, email };
   const token = generateToken(payload, SECRET_KEY, { expiresIn: '1h' });
+
+  try {
+    const isTokenValid = verifyToken(token, SECRET_KEY);
+    console.log("Le token est valid",isTokenValid);
+  } catch (error) {
+    console.log('Token invalide ou expiré');
+    return reply.code(401).send({ error: 'Token invalide ou expiré' });
+  }
 
   return reply.code(200).send({
     message: 'Connexion réussie',
