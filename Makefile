@@ -87,6 +87,7 @@ clean:
 clean-node-modules:
 	# Supprimer node_modules du frontend
 	rm -rf ./frontend/node_modules
+	rm -rf ./frontend/build
 	@echo "Dossier node_modules du frontend supprimé."
 	
 	# Supprimer node_modules du backend

@@ -43,7 +43,8 @@ services:
     environment:
       - CHOKIDAR_USEPOLLING=true
     volumes:
-      - ./frontend:/app
+      - "${PWD}/frontend:/app"
+
 
   # Service Nginx
   nginx:
