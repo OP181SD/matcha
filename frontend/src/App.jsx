@@ -13,7 +13,9 @@ function App() {
       <p className="text-lg sm:text-xl md:text-2xl mt-2 opacity-80 italic">
         L’amour autour d’une tasse de matcha.
       </p>
-      
+      <button className="bg-matcha-light text-matcha-dark rounded-lg font-bold py-2 px-6">
+      Sig in
+    </button>
     </div>
   );
 }
