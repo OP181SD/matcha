@@ -16,7 +16,7 @@ export const theme = {
     },
     fontFamily: {
       roboto: ['Roboto', 'sans-serif'],
-      nunito: ['Nunito', 'sans-serif'] 
+      nunito: ['Nunito', 'sans-serif'],
     },
   },
 };
