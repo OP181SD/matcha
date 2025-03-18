@@ -1,5 +1,5 @@
 import { ModelRegister, ModelDuplicate, ModelLogin, ModelHashedPassword } from '../models/User.js';
-import { byCryptCompare, generateToken, verifyToken, SECRET_KEY } from '../../config/import.js';
+import { byCryptCompare, generateToken, verifyToken, SECRET_KEY, byCryptHash } from '../../config/import.js';
 
 export const AuthRegister = async (request, reply) => {
 
@@ -34,7 +34,7 @@ export const AuthToken = async (request, reply) => {
   const authHeader = request.headers['authorization'];
 
   if (!authHeader) {
-    return reply.code(401).send({ error_auth_token: 'Token manquant' });
+    return reply.code(401).send({ err_auth_login_auth_token: 'Token manquant' });
   }
   const token = authHeader.split(' ')[1]; 
 
@@ -48,22 +48,31 @@ export const AuthToken = async (request, reply) => {
 
   } catch (error) {
     console.log('Token invalide ou expiré');
-    return reply.code(401).send({ error: 'Token invalide ou expiré' });
+    return reply.code(401).send({ err_auth_login: 'Token invalide ou expiré' });
   }
 
 };
 
-
 export const AuthLogin = async (request, reply) => {
   const { username, email, password } = request.body;
 
+  if (username && email)
+      return reply.code(401).send({ err_auth_login: 'Erreur : connexion impossible.' });
+
+  if (!username && !email || !password) {
+      return reply.code(401).send({ err_auth_login: 'Erreur : Les champs sont incorrects.' });
+  }
+
   const user = await ModelLogin(username, email);
-  if (!user)
-    return reply.code(404).send({ error: 'Utilisateur introuvable' });
+
+  if (!user) {
+    return reply.code(404).send({ err_auth_login: 'Utilisateur non trouvé.' });
+  }
 
   let isPasswordValid = await byCryptCompare(password, user.password);
-  if (!isPasswordValid)
-    return reply.code(404).send({ error: 'Mot de passe incorrect.' });
+  if (!isPasswordValid) {
+    return reply.code(404).send({ err_auth_login: 'Mot de passe incorrect.' });
+  }
 
   const token = await getToken(username, email);
 
@@ -73,5 +82,3 @@ export const AuthLogin = async (request, reply) => {
     token
   });
 };
-
-

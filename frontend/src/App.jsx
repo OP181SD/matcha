@@ -2,8 +2,11 @@ import React from 'react';
 import matchaImage from './assets/matcha.png';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart } from "@fortawesome/free-solid-svg-icons";
+import { useHistory } from 'react-router-dom';
 
 function App() {
+  const history = useHistory();
+
   return (
     <div className="bg-matcha text-cream flex flex-col justify-center items-center min-h-screen font-nunito pb-32">
       <img 
@@ -19,6 +22,7 @@ function App() {
       <div className="px-4 py-2 flex gap-3">
         <button className="bg-matcha-light text-matcha-dark rounded-lg font-bold py-2 px-8 w-full drop-shadow-md hover:scale-105 transition-transform">
           Inscription 
+          onClick={}
         </button>
         <button className="bg-matcha-light text-matcha-dark rounded-lg font-bold py-2 px-8 w-full drop-shadow-md hover:scale-105 transition-transform">
           Connexion
