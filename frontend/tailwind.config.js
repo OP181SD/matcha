@@ -4,26 +4,41 @@ export const content = [
   './src/**/*.{js,jsx,ts,tsx}', 
 ];
 
-export const theme = {
-  extend: {
-    colors: {
-      matcha: {
-        light: '#A8D08D',
-        DEFAULT: '#5A7F3D',
-        dark: '#3C5B3D',
+// tailwind.config.js
+
+module.exports = {
+  content: [
+    './src/**/*.{html,js,jsx}', // Assure-toi que ton contenu est pris en compte
+  ],
+  theme: {
+    extend: {
+      colors: {
+        matcha: {
+          light: '#A8D08D',    // Couleur claire matcha
+          DEFAULT: '#5A7F3D',   // Couleur principale matcha
+          dark: '#3C5B3D',      // Couleur foncée matcha
+        },
+        cream: '#F9E8B5',         // Couleur cream
+        pink: '#FC9FB1',          // Couleur pink
+        tea: '#74a12e',           // Couleur tea
       },
-      cream: '#F9E8B5',
-    },
-    fontFamily: {
-      roboto: ['Roboto', 'sans-serif'],
-      nunito: ['Nunito', 'sans-serif'],
+      fontFamily: {
+        roboto: ['Roboto', 'sans-serif'],
+        nunito: ['Nunito', 'sans-serif'],
+      },
+      screens: {
+        sm: '640px',  // Petit écran
+        md: '768px',  // Moyen écran
+        lg: '1024px', // Grand écran
+        xl: '1280px', // Très grand écran
+      },
     },
   },
-};
+  plugins: [],
+}
 
-export const plugins = [
-  require('daisyui'),
-];
+
+
 
 export const daisyui = {
   themes: [
