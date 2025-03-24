@@ -2,34 +2,42 @@
 @tailwind components;
 @tailwind utilities;
 
-* {
-    @apply m-0 p-0 box-border;
-}
 
 body {
     @apply bg-matcha;
 }
-
-
-* {
-    @apply m-0 p-0 box-border;
-}
-
-body {
-    @apply bg-matcha;
-}
-
 
 @media (max-width: 500px) {
     .mobile-text h1 {
-        @apply  text-6xl; 
+        @apply text-6xl px-4 py-2; 
     }
 }
 
-@layer {
-    .text-outline {
-  
-        margin: 0;
-        -webkit-text-stroke: 2px #594347; 
-    }
+
+
+.text-outline-mat {
+    color: #A6BF80; 
+    text-shadow: 
+        3px 3px 0 #594347,
+        -3px 3px 0 #594347,
+        3px -3px 0 #594347,
+        -3px -3px 0 #594347,
+        0px 3px 0 #594347,
+        0px -3px 0 #594347,
+        3px 0px 0 #594347,
+        -3px 0px 0 #594347;
 }
+
+.text-outline-cha {
+    color: #F2C9D4; 
+    text-shadow: 
+        3px 3px 0 #594347,
+        -3px 3px 0 #594347,
+        3px -2px 0 #594347,
+        -3px -2px 0 #594347,
+        1px 2px 0 #594347,
+        0px -2px 0 #594347,
+        2px 0px 0 #594347,
+        -2px 0px 0 #594347;
+}
+
