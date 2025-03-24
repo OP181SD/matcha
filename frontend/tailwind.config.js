@@ -15,16 +15,17 @@ module.exports = {
       colors: {
         matcha: {
           light: '#A8D08D',    // Couleur claire matcha
-          DEFAULT: '#5A7F3D',   // Couleur principale matcha
+          DEFAULT: '#F6F3ED',   // Couleur principale matcha
           dark: '#3C5B3D',      // Couleur foncée matcha
         },
-        cream: '#F9E8B5',         // Couleur cream
+        pen: '#594347',         // Couleur cream
         pink: '#FC9FB1',          // Couleur pink
         tea: '#74a12e',           // Couleur tea
       },
       fontFamily: {
         roboto: ['Roboto', 'sans-serif'],
         nunito: ['Nunito', 'sans-serif'],
+        quicksand: ['Quicksand', 'sans-serif'],
       },
       screens: {
         sm: '640px',  // Petit écran

@@ -2,16 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
+* {
+    @apply m-0 p-0 box-border;
+}
+
 body {
     @apply bg-matcha;
 }
 
-.matcha-logo
-{
-    @apply px-4 py-2 flex flex-col justify-center items-center mt-12 ;
+
+* {
+    @apply m-0 p-0 box-border;
 }
 
-.typo-slogan
-{
-    @apply px-2 py-4 text-white font-bold text-4xl;
+body {
+    @apply bg-matcha;
+}
+
+
+@media (max-width: 500px) {
+    .mobile-text h1 {
+        @apply  text-6xl; 
+    }
+}
+
+@layer {
+    .text-outline {
+  
+        margin: 0;
+        -webkit-text-stroke: 2px #594347; 
+    }
 }
