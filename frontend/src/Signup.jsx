@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 export function Signup() {
     const [formData, setFormData] = useState({
@@ -23,11 +24,11 @@ export function Signup() {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(formData)  
+            body: JSON.stringify(formData)
         })
-        .then(response => response.json())
-        .then(data => console.log('Success:', data))
-        .catch((error) => console.error('Error:', error));
+            .then(response => response.json())
+            .then(data => console.log('Success:', data))
+            .catch((error) => console.error('Error:', error));
     };
 
     return (
@@ -36,42 +37,48 @@ export function Signup() {
                 <h2 className='text-2xl font-bold text-center mb-6 text-pen'>Inscription</h2>
                 <div className='mb-4'>
                     <label className='block text-pen font-semibold mb-2'>Nom</label>
-                    <input 
-                        type='text' 
-                        name='username' 
-                        value={formData.username} 
-                        onChange={handleChange} 
-                        className='w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-tea' 
-                        required 
+                    <input
+                        type='text'
+                        name='username'
+                        value={formData.username}
+                        onChange={handleChange}
+                        className='w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-tea'
+                        required
                     />
                 </div>
                 <div className='mb-4'>
                     <label className='block text-pen font-semibold mb-2'>Email</label>
-                    <input 
-                        type='email' 
-                        name='email' 
-                        value={formData.email} 
-                        onChange={handleChange} 
-                        className='w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-tea' 
-                        required 
+                    <input
+                        type='email'
+                        name='email'
+                        value={formData.email}
+                        onChange={handleChange}
+                        className='w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-tea'
+                        required
                     />
                 </div>
                 <div className='mb-4'>
                     <label className='block text-pen font-semibold mb-2'>Mot de passe</label>
-                    <input 
-                        type='password' 
-                        name='password' 
-                        value={formData.password} 
-                        onChange={handleChange} 
-                        className='w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-tea' 
-                        required 
+                    <input
+                        type='password'
+                        name='password'
+                        value={formData.password}
+                        onChange={handleChange}
+                        className='w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-tea'
+                        required
                     />
                 </div>
-                <button 
-                    type='submit' 
-                    className='w-full bg-tea text-white p-2 rounded-md hover:bg-[#74a12e] transition'>
+                <button
+                    type='submit'
+                    className='w-full mb-4 bg-tea text-white p-2 rounded-md hover:bg-[#74a12e] transition'>
                     S'inscrire
                 </button>
+                <Link to= "/">
+                    <button
+                        className='w-full bg-tea text-white p-2 rounded-md hover:bg-[#74a12e] transition'>
+                        Retour
+                    </button>
+                </Link>
             </form>
         </div>
     );
