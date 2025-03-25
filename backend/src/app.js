@@ -1,7 +1,14 @@
 import { fastify } from '../config/import.js';
 import { AuthToken } from './controllers/authControllers.js';
-import authRoutes  from './routes/authRoutes.js';
+import authRoutes from './routes/authRoutes.js';
+import fastifyCors from '@fastify/cors';  
 
+
+fastify.register(fastifyCors, {
+  origin: 'http://localhost:3000',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'], 
+});
 
 fastify.register(authRoutes);
 
@@ -18,9 +25,8 @@ fastify.get('/', async () => {
   }
 });
 
-
 fastify.get('/protected', {
-  preHandler: AuthToken, 
+  preHandler: AuthToken,
 }, async (request, reply) => {
   return reply.code(200).send({
     message: 'Vous avez accès aux données protégées',
@@ -28,13 +34,10 @@ fastify.get('/protected', {
   });
 });
 
-
 try {
   await fastify.listen({ port: 5001, host: '0.0.0.0' });
-
   console.log("Serveur démarré! sur http://localhost:5001");
 } catch (error) {
   fastify.log.error(error);
   process.exit(1);
 }
-
