@@ -3,6 +3,8 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { Home } from './Home';
 import { Signup } from './Signup';
 import { Login } from './Login';
+import { Dashboard } from './Dashboard';
+
 
 function ErrorPage()
 {
@@ -23,6 +25,11 @@ const router = createBrowserRouter([
   {
     path: '/login',
     element: <Login />,
+    errorElement: <ErrorPage />
+  },
+  {
+    path: '/dashboard',
+    element: <Dashboard />,
     errorElement: <ErrorPage />
   }
 ]);
