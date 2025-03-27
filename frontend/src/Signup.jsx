@@ -1,10 +1,7 @@
 import React, { useState } from 'react';
-import { Link} from 'react-router-dom';
-
-
+import { Link } from 'react-router-dom';
 
 export function Signup() {
-
     const [formData, setFormData] = useState({
         username: '',
         email: '',
@@ -18,6 +15,8 @@ export function Signup() {
         });
     };
 
+    const [error, setError] = useState("");
+
     const handleSubmit = (e) => {
         e.preventDefault();
         console.log('Form Submitted', formData);
@@ -27,11 +26,23 @@ export function Signup() {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(formData)
+            body: JSON.stringify(formData),
         })
-            .then(response => response.json())
-            .then(data => console.log('Status:', data))
-            .catch((error) => console.error('Error:', error)); 
+            .then(response => {
+                if (!response.ok) {
+                    if (response.status === 400) {
+                        setError("Votre nom d'utilisateur ou votre email est le même.");
+                        setTimeout(() => setError(''), 2000);
+                    }
+                }
+                return response.json();  
+            })
+            .then(data => {
+                console.log('Données reçues:', data);
+            })
+            .catch((error) => {
+                console.error('Erreur:', error);
+            });
     };
 
     return (
@@ -75,8 +86,9 @@ export function Signup() {
                     type='submit'
                     className='w-full mb-4 bg-tea text-white p-2 rounded-md hover:bg-[#74a12e] transition'>
                     S'inscrire
+                    {error && <p className="text-red-500 font-bold text-sm mt-1">{error}</p>} {/* Afficher l'erreur */}
                 </button>
-                <Link to= "/">
+                <Link to="/">
                     <button
                         className='w-full bg-tea text-white p-2 rounded-md hover:bg-[#74a12e] transition'>
                         Retour

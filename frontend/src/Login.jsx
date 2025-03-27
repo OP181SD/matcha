@@ -5,22 +5,26 @@ import React, { useState } from "react";
 export function Login() {
 
     const navigate = useNavigate();
+
     const [formData, setFormData] = useState({
         identifier: '',
         password: '',
     });
+
+    const [error, setError] = useState("");
 
     const handleChange = (e) => {
         setFormData({
             ...formData,
             [e.target.name]: e.target.value
         });
+        
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log("Formulaire envoyé, vérification en cours...", formData);
-
+        console.log("Formulaire envoyé !!", formData);
+    
         fetch('http://127.0.0.1:5001/login', {
             method: 'POST',
             headers: {
@@ -28,13 +32,27 @@ export function Login() {
             },
             body: JSON.stringify(formData)
         })
-            .then(response => response.json())
-            .then(data => {
-                console.log("Réponse reçue par le backend : ", data);
-              
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Mot de passe incorrect ou problème de connexion');
+                }
+                return response.json();
             })
-            .catch(error => console.error("Erreur ->", error));
+            .then(data => {
+                if (data.success === false) {
+                    setError('Mot de passe incorrect');
+                } else {
+                    localStorage.setItem("token", JSON.stringify(data.token));
+                    localStorage.setItem("user", JSON.stringify(data.user));
+                    navigate("/dashboard", { state: data });
+                }
+            })
+            .catch(error => {
+                console.error("", error);
+                setError('Erreur lors de la connexion. Veuillez réessayer.');
+            });
     };
+    
 
     return (
         <div className="h-screen flex justify-center items-center bg-green-100">
@@ -61,6 +79,7 @@ export function Login() {
                         className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-400"
                         required
                     />
+                    {error && <p className="text-red-500 text-sm mt-1">{error}</p>} {/* Afficher l'erreur */}
                 </div>
                 <button
                     type="submit"
