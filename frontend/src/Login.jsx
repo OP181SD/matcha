@@ -1,7 +1,10 @@
-import { Link } from "react-router-dom";
-import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+
 
 export function Login() {
+
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         identifier: '',
         password: '',
@@ -11,22 +14,26 @@ export function Login() {
         setFormData({
             ...formData,
             [e.target.name]: e.target.value
-        }); 
+        });
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log("Formulaire envoyer check si la connexion a reusii...",formData);
-        fetch('http://127.0.0.1:5001/login',{
+        console.log("Formulaire envoyé, vérification en cours...", formData);
+
+        fetch('http://127.0.0.1:5001/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(formData)
         })
-            .then (response => response.json())
-            .then (data => console.log("OK -> ",data))
-            .catch((error) => console.error("Error ->", error));
+            .then(response => response.json())
+            .then(data => {
+                console.log("Réponse reçue par le backend : ", data);
+              
+            })
+            .catch(error => console.error("Erreur ->", error));
     };
 
     return (
