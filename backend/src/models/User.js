@@ -21,11 +21,15 @@ export const ModelRegister = async (username, email ,password) => {
     return rows;
 };
 
-export const ModelLogin = async (username, email) => {
+export const ModelLogin = async (identifier) => {
+    console.log("Identifier reçu! :", identifier); 
+
     const log = 'SELECT * FROM users WHERE username=$1 OR email=$2';
-    const { rows } = await fastify.pg.query(log, [username, email]);
+    const { rows } = await fastify.pg.query(log, [identifier, identifier]); 
 
     if (rows.length > 0) {
         return rows[0];
     }
+
+    return null;  
 };

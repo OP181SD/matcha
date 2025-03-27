@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 
 export function Login() {
     const [formData, setFormData] = useState({
-        username: '',
+        identifier: '',
         password: '',
     });
 
@@ -37,8 +37,8 @@ export function Login() {
                     <label className="block text-gray-800 font-semibold mb-2">Nom ou Email</label>
                     <input
                         type="text"
-                        name="username"
-                        value={formData.username}
+                        name="identifier"
+                        value={formData.identifier}
                         onChange={handleChange}
                         className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-400"
                         required

@@ -18,7 +18,9 @@ export function Home() {
                         </Link>
                     </button>
                     <button className='btn-style btn-connexion'>
+                        <Link to="/login">
                         Connexion
+                        </Link>
                     </button>
                 </div>
                 <footer className='footer-style'>

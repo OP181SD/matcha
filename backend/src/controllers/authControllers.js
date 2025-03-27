@@ -54,28 +54,23 @@ export const AuthToken = async (request, reply) => {
 };
 
 export const AuthLogin = async (request, reply) => {
-  const { username, email, password } = request.body;
+  const { identifier, password } = request.body;
 
-  if (username && email)
-      return reply.code(401).send({ err_auth_login: 'Erreur : connexion impossible.' });
-
-  if (!username && !email || !password) {
-      return reply.code(401).send({ err_auth_login: 'Erreur : Les champs sont incorrects.' });
+  if (!identifier || !password) {
+      return reply.code(400).send({ err_auth_login: 'Erreur : Identifiant ou mot de passe manquant.' });
   }
 
-  const user = await ModelLogin(username, email);
-
+  const user = await ModelLogin(identifier);
   if (!user) {
     return reply.code(404).send({ err_auth_login: 'Utilisateur non trouvé.' });
   }
 
   let isPasswordValid = await byCryptCompare(password, user.password);
   if (!isPasswordValid) {
-    return reply.code(404).send({ err_auth_login: 'Mot de passe incorrect.' });
+    return reply.code(401).send({ err_auth_login: 'Mot de passe incorrect.' });
   }
 
-  const token = await getToken(username, email);
-
+  const token = await getToken(user.username, user.email);
   return reply.code(200).send({
     message: 'Connexion réussie',
     user,
