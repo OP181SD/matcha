@@ -3,25 +3,19 @@ import { useNavigate } from "react-router-dom";
 
 export function Dashboard() {
 
-
-
     const navigate = useNavigate();
     const [user, setUser] = useState(null);
-
-
     const [newUsername, setNewUsername] = useState("");
     const [isEditing, setIsEditing] = useState(false);
-    
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
-
 
     useEffect(() => {
         const token = localStorage.getItem("token");
         const userInfo = localStorage.getItem("user");
-        if (!token || !userInfo)
+        if (!token || !userInfo) {
             navigate("/");
-        else {
+        } else {
             const parsedUser = JSON.parse(userInfo);
             setUser(parsedUser);
             setNewUsername(parsedUser.username);
@@ -34,50 +28,51 @@ export function Dashboard() {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
                 },
                 body: JSON.stringify({
                     id: user?.id,
                     username: newUsername
                 }),
-            })
-            if (response.ok) {
-                if (response.status === 200)
-                {
-                    setSuccess("modification reussi avec succes");
-                    setTimeout(() => setSuccess(''), 2000);
-                }
+            });
+
+            if (!response.ok) {
+                throw new Error("Échec de la modification");
             }
-            else if (response.status === 400)
-            {
-              
-            }
+
+            setSuccess("Modification réussie avec succès !");
+            setTimeout(() => setSuccess(''), 2000);
+
+            const updatedUser = { ...user, username: newUsername };
+            localStorage.setItem("user", JSON.stringify(updatedUser));
+            setUser(updatedUser);
+            setIsEditing(false);
         } catch (error) {
-            console.error("ERROR");
+            setError("Une erreur est survenue lors de la modification.");
+            setTimeout(() => setError(''), 2000);
         }
-    }
+    };
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        if (newUsername !== user?.username) {
+        if (newUsername.trim() !== user?.username) {
             ApiUpdate();
-        }
-        else {
-            setError("Errruer la modification a ecouh")
+        } else {
+            setError("Erreur : la modification a échoué");
             setTimeout(() => setError(''), 2000);
         }
-    }
+    };
 
     const handleChange = (event) => {
         setNewUsername(event.target.value);
-    }
+    };
 
     const clearDataInfo = () => {
         localStorage.removeItem("token");
-        setUser([]);
+        localStorage.removeItem("user");
+        setUser(null);
         navigate("/");
-    }
-
- 
+    };
 
     return (
         <div className="h-screen flex justify-center items-center bg-blue-100">
@@ -85,8 +80,10 @@ export function Dashboard() {
                 <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">
                     {user ? "Bienvenue !" : "Accès refusé"}
                 </h2>
+                
                 {success && <p className="text-green-500 font-bold text-sm text-center mb-4">{success}</p>}
                 {error && <p className="text-red-500 font-bold text-sm text-center mb-4">{error}</p>}
+
                 {user ? (
                     <>
                         <p className="text-gray-700 mb-4">Votre connexion a réussi.</p>
@@ -128,10 +125,8 @@ export function Dashboard() {
                     onClick={clearDataInfo}
                     className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 transition"
                 >
-                    Retour à la connexion
-                </button>
-
-               
+                    Deconnexion
+                </button>  
             </div>
         </div>
     );
