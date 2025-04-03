@@ -48,6 +48,8 @@ export function Dashboard() {
             setUser(updatedUser);
             setIsEditing(false);
         } catch (error) {
+
+            
             setError("Une erreur est survenue lors de la modification.");
             setTimeout(() => setError(''), 2000);
         }
@@ -80,7 +82,7 @@ export function Dashboard() {
                 <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">
                     {user ? "Bienvenue !" : "Accès refusé"}
                 </h2>
-                
+
                 {success && <p className="text-green-500 font-bold text-sm text-center mb-4">{success}</p>}
                 {error && <p className="text-red-500 font-bold text-sm text-center mb-4">{error}</p>}
 
@@ -93,13 +95,20 @@ export function Dashboard() {
 
                             {isEditing ? (
                                 <form onSubmit={handleSubmit}>
-                                    <input
-                                        type="text"
-                                        value={newUsername}
-                                        onChange={handleChange}
-                                        className="w-full p-2 border border-gray-300 rounded-md mb-4"
-                                        placeholder="Entrez un nouveau nom d'utilisateur"
-                                    />
+                                    <div className="mb-4">
+                                        <label htmlFor="newUsername" className="block text-gray-800 font-semibold mb-2">
+                                            Nouveau nom d'utilisateur
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id="newUsername"
+                                            value={newUsername}
+                                            onChange={handleChange}
+                                            className="w-full p-2 border border-gray-300 rounded-md mb-4"
+                                            placeholder="Entrez un nouveau nom d'utilisateur"
+                                            required
+                                        />
+                                    </div>
                                     <button
                                         type="submit"
                                         className="w-full bg-green-500 text-white p-2 rounded-md hover:bg-green-600 transition"
@@ -115,6 +124,8 @@ export function Dashboard() {
                                     Modifier le nom d'utilisateur
                                 </button>
                             )}
+
+                          
                         </div>
                     </>
                 ) : (
@@ -126,7 +137,7 @@ export function Dashboard() {
                     className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 transition"
                 >
                     Deconnexion
-                </button>  
+                </button>
             </div>
         </div>
     );
