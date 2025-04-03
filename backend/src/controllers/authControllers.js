@@ -1,33 +1,30 @@
-import { ModelRegister, ModelDuplicate, ModelLogin, ModelHashedPassword } from '../models/User.js';
+import { ModelRegister, ModelDuplicate, ModelLogin, ModelHashedPassword, ModelUpdate } from '../models/User.js';
 import { byCryptCompare, generateToken, verifyToken, SECRET_KEY, byCryptHash } from '../../config/import.js';
 
 export const AuthRegister = async (request, reply) => {
 
   const { username, email, password } = request.body;
-  
-  if (!username || !email || !password)
-  {
-      return reply.code(400).send({error: 'Tout les champs sont requis'});
+
+  if (!username || !email || !password) {
+    return reply.code(400).send({ error: 'Tout les champs sont requis' });
   }
 
   try {
-    const checkUsers = await ModelDuplicate(username,email);
-    if (checkUsers.error_users)
-    {
-        return (reply.code(400).send({error_users: checkUsers.error_users}));
+    const checkUsers = await ModelDuplicate(username, email);
+    if (checkUsers.error_users) {
+      return (reply.code(400).send({ error_users: checkUsers.error_users }));
     }
-    const users = await ModelRegister(username,email,password);
-    return reply.code(201).send({ ok: 'Users ajouter'}, users);
+    const users = await ModelRegister(username, email, password);
+    return reply.code(201).send({ ok: 'Users ajouter' }, users);
 
   } catch (error) {
-    return (reply.code(500).send({error: 'Une erreur est survenu '}));
+    return (reply.code(500).send({ error: 'Une erreur est survenu ' }));
   }
 }
 
-export const getToken = async (username, email) => 
-  {
+export const getToken = async (username, email) => {
   const payload = { username, email };
-  return generateToken(payload,SECRET_KEY); 
+  return generateToken(payload, SECRET_KEY);
 };
 
 export const AuthToken = async (request, reply) => {
@@ -36,12 +33,12 @@ export const AuthToken = async (request, reply) => {
   if (!authHeader) {
     return reply.code(401).send({ err_auth_login_auth_token: 'Token manquant' });
   }
-  const token = authHeader.split(' ')[1]; 
+  const token = authHeader.split(' ')[1];
 
   try {
     const decoded = verifyToken(token, SECRET_KEY);
-   
-    request.user = decoded; 
+
+    request.user = decoded;
 
 
     return reply.code(200).send({ message: 'Token valide', user: decoded });
@@ -57,7 +54,7 @@ export const AuthLogin = async (request, reply) => {
   const { identifier, password } = request.body;
 
   if (!identifier || !password) {
-      return reply.code(400).send({ err_auth_login: 'Erreur : Identifiant ou mot de passe manquant.' });
+    return reply.code(400).send({ err_auth_login: 'Erreur : Identifiant ou mot de passe manquant.' });
   }
 
   const user = await ModelLogin(identifier);
@@ -77,3 +74,15 @@ export const AuthLogin = async (request, reply) => {
     token
   });
 };
+
+
+export const AuthUpdate = async (request, reply) => {
+  const { username, id} = request.body;
+  if (!username) {
+    return (reply.code(400).send({ err_auth_update: 'Erreur champs a modifier manquant.' }));
+  }
+  const update = await ModelUpdate(username,id);
+  if (!update) {
+    return reply.code(404).send({ err_auth_login: 'Ce nom existe pas ' });
+  }
+}
