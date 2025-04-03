@@ -16,6 +16,8 @@ export function Signup() {
     };
 
     const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
+
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -29,13 +31,15 @@ export function Signup() {
             body: JSON.stringify(formData),
         })
             .then(response => {
-                if (!response.ok) {
-                    if (response.status === 400) {
-                        setError("Votre nom d'utilisateur ou votre email est le même.");
-                        setTimeout(() => setError(''), 2000);
-                    }
+                if (response.status === 400) {
+                    setError("Votre nom d'utilisateur ou votre email est le même.");
+                    setTimeout(() => setError(''), 2000);
                 }
-                return response.json();  
+                else if (response.status === 201) {
+                    setSuccess("Inscrisption reussi avec succes");
+                    setTimeout(() => setSuccess(''), 2000);
+                }
+                return response.json();
             })
             .then(data => {
                 console.log('Données reçues:', data);
@@ -49,6 +53,8 @@ export function Signup() {
         <div className='h-screen flex justify-center items-center bg-matcha'>
             <form className='bg-white p-8 rounded-lg shadow-lg w-96' onSubmit={handleSubmit}>
                 <h2 className='text-2xl font-bold text-center mb-6 text-pen'>Inscription</h2>
+                {success && <p className="text-green-500 font-bold text-sm text-center mb-4">{success}</p>}
+                {error && <p className="text-red-500 font-bold text-sm text-center mb-4">{error}</p>}
                 <div className='mb-4'>
                     <label className='block text-pen font-semibold mb-2'>Nom</label>
                     <input
@@ -86,7 +92,7 @@ export function Signup() {
                     type='submit'
                     className='w-full mb-4 bg-tea text-white p-2 rounded-md hover:bg-[#74a12e] transition'>
                     S'inscrire
-                    {error && <p className="text-red-500 font-bold text-sm mt-1">{error}</p>} {/* Afficher l'erreur */}
+
                 </button>
                 <Link to="/">
                     <button
@@ -94,6 +100,7 @@ export function Signup() {
                         Retour
                     </button>
                 </Link>
+
             </form>
         </div>
     );

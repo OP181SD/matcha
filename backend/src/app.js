@@ -1,13 +1,13 @@
 import { fastify } from '../config/import.js';
 import { AuthToken } from './controllers/authControllers.js';
 import authRoutes from './routes/authRoutes.js';
-import fastifyCors from '@fastify/cors';  
+import fastifyCors from '@fastify/cors';
 
 
 fastify.register(fastifyCors, {
-  origin: ['http://localhost:3000','http://127.0.0.1:3000'],
+  origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'], 
+  allowedHeaders: ['Content-Type', 'Authorization'],
 });
 
 fastify.register(authRoutes);
