@@ -3,25 +3,19 @@ import { useNavigate } from "react-router-dom";
 
 export function Dashboard() {
 
-
-
     const navigate = useNavigate();
     const [user, setUser] = useState(null);
-
-
     const [newUsername, setNewUsername] = useState("");
     const [isEditing, setIsEditing] = useState(false);
-    
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
-
 
     useEffect(() => {
         const token = localStorage.getItem("token");
         const userInfo = localStorage.getItem("user");
-        if (!token || !userInfo)
+        if (!token || !userInfo) {
             navigate("/");
-        else {
+        } else {
             const parsedUser = JSON.parse(userInfo);
             setUser(parsedUser);
             setNewUsername(parsedUser.username);
@@ -34,50 +28,53 @@ export function Dashboard() {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
                 },
                 body: JSON.stringify({
                     id: user?.id,
                     username: newUsername
                 }),
-            })
-            if (response.ok) {
-                if (response.status === 200)
-                {
-                    setSuccess("modification reussi avec succes");
-                    setTimeout(() => setSuccess(''), 2000);
-                }
+            });
+
+            if (!response.ok) {
+                throw new Error("Échec de la modification");
             }
-            else if (response.status === 400)
-            {
-              
-            }
+
+            setSuccess("Modification réussie avec succès !");
+            setTimeout(() => setSuccess(''), 2000);
+
+            const updatedUser = { ...user, username: newUsername };
+            localStorage.setItem("user", JSON.stringify(updatedUser));
+            setUser(updatedUser);
+            setIsEditing(false);
         } catch (error) {
-            console.error("ERROR");
+
+
+            setError("Une erreur est survenue lors de la modification.");
+            setTimeout(() => setError(''), 2000);
         }
-    }
+    };
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        if (newUsername !== user?.username) {
+        if (newUsername.trim() !== user?.username) {
             ApiUpdate();
-        }
-        else {
-            setError("Errruer la modification a ecouh")
+        } else {
+            setError("Erreur : Le nom d'utilisateur est identique à l'ancien.");
             setTimeout(() => setError(''), 2000);
         }
-    }
+    };
 
     const handleChange = (event) => {
         setNewUsername(event.target.value);
-    }
+    };
 
     const clearDataInfo = () => {
         localStorage.removeItem("token");
-        setUser([]);
+        localStorage.removeItem("user");
+        setUser(null);
         navigate("/");
-    }
-
- 
+    };
 
     return (
         <div className="h-screen flex justify-center items-center bg-blue-100">
@@ -85,8 +82,10 @@ export function Dashboard() {
                 <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">
                     {user ? "Bienvenue !" : "Accès refusé"}
                 </h2>
+
                 {success && <p className="text-green-500 font-bold text-sm text-center mb-4">{success}</p>}
                 {error && <p className="text-red-500 font-bold text-sm text-center mb-4">{error}</p>}
+
                 {user ? (
                     <>
                         <p className="text-gray-700 mb-4">Votre connexion a réussi.</p>
@@ -96,28 +95,51 @@ export function Dashboard() {
 
                             {isEditing ? (
                                 <form onSubmit={handleSubmit}>
-                                    <input
-                                        type="text"
-                                        value={newUsername}
-                                        onChange={handleChange}
-                                        className="w-full p-2 border border-gray-300 rounded-md mb-4"
-                                        placeholder="Entrez un nouveau nom d'utilisateur"
-                                    />
+                                    <div className="mb-4">
+                                        <label htmlFor="newUsername" className="block text-gray-800 font-semibold mb-2">
+                                            Nouveau nom d'utilisateur
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id="newUsername"
+                                            value={newUsername}
+                                            onChange={handleChange}
+                                            className="w-full p-2 border border-gray-300 rounded-md mb-4"
+                                            placeholder="Entrez un nouveau nom d'utilisateur"
+                                            required
+                                        />
+                                    </div>
                                     <button
                                         type="submit"
                                         className="w-full bg-green-500 text-white p-2 rounded-md hover:bg-green-600 transition"
                                     >
                                         Sauvegarder
                                     </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsEditing(false)}
+                                        className="w-full bg-red-500 text-white p-2 rounded-md hover:bg-red-600 transition mt-4"
+                                    >
+                                        Annuler
+                                    </button>
                                 </form>
                             ) : (
-                                <button
+
+                                <>
+                                  <button
                                     onClick={() => setIsEditing(true)}
                                     className="w-full bg-yellow-500 text-white p-2 rounded-md hover:bg-yellow-600 transition mt-4"
                                 >
                                     Modifier le nom d'utilisateur
                                 </button>
+
+                       
+                                </>
+                              
+
                             )}
+
                         </div>
                     </>
                 ) : (
@@ -128,7 +150,7 @@ export function Dashboard() {
                     onClick={clearDataInfo}
                     className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 transition"
                 >
-                    Retour à la connexion
+                    Deconnexion
                 </button>
             </div>
         </div>

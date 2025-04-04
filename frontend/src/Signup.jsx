@@ -18,7 +18,6 @@ export function Signup() {
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
 
-
     const handleSubmit = (e) => {
         e.preventDefault();
         console.log('Form Submitted', formData);
@@ -32,11 +31,10 @@ export function Signup() {
         })
             .then(response => {
                 if (response.status === 400) {
-                    setError("Votre nom d'utilisateur ou votre email est le même.");
+                    setError("Votre nom d'utilisateur ou votre email est déjà utilisé.");
                     setTimeout(() => setError(''), 2000);
-                }
-                else if (response.status === 201) {
-                    setSuccess("Inscrisption reussi avec succes");
+                } else if (response.status === 201) {
+                    setSuccess("Inscription réussie avec succès !");
                     setTimeout(() => setSuccess(''), 2000);
                 }
                 return response.json();
@@ -55,52 +53,61 @@ export function Signup() {
                 <h2 className='text-2xl font-bold text-center mb-6 text-pen'>Inscription</h2>
                 {success && <p className="text-green-500 font-bold text-sm text-center mb-4">{success}</p>}
                 {error && <p className="text-red-500 font-bold text-sm text-center mb-4">{error}</p>}
+                
                 <div className='mb-4'>
-                    <label className='block text-pen font-semibold mb-2'>Nom</label>
+                    <label htmlFor='username' className='block text-pen font-semibold mb-2'>Nom</label>
                     <input
                         type='text'
+                        id='username'
                         name='username'
                         value={formData.username}
                         onChange={handleChange}
+                        autoComplete="username"
                         className='w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-tea'
                         required
                     />
                 </div>
+                
                 <div className='mb-4'>
-                    <label className='block text-pen font-semibold mb-2'>Email</label>
+                    <label htmlFor='email' className='block text-pen font-semibold mb-2'>Email</label>
                     <input
                         type='email'
+                        id='email'
                         name='email'
                         value={formData.email}
                         onChange={handleChange}
+                        autoComplete="email"
                         className='w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-tea'
                         required
                     />
                 </div>
+                
                 <div className='mb-4'>
-                    <label className='block text-pen font-semibold mb-2'>Mot de passe</label>
+                    <label htmlFor='password' className='block text-pen font-semibold mb-2'>Mot de passe</label>
                     <input
                         type='password'
+                        id='password'
                         name='password'
                         value={formData.password}
                         onChange={handleChange}
+                        autoComplete="new-password"
                         className='w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-tea'
                         required
                     />
                 </div>
+                
                 <button
                     type='submit'
                     className='w-full mb-4 bg-tea text-white p-2 rounded-md hover:bg-[#74a12e] transition'>
                     S'inscrire
-
                 </button>
+                
                 <Link to="/">
                     <button
                         className='w-full bg-tea text-white p-2 rounded-md hover:bg-[#74a12e] transition'>
                         Retour
                     </button>
                 </Link>
-
             </form>
         </div>
     );

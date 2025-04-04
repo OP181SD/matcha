@@ -2,7 +2,12 @@ import { fastify } from '../config/import.js';
 import { AuthToken } from './controllers/authControllers.js';
 import authRoutes from './routes/authRoutes.js';
 import fastifyCors from '@fastify/cors';
+import fastifyCookie from 'fastify-cookie';
 
+fastify.register(fastifyCookie, {
+  secret: 'your-secret-key', 
+  parseOptions: {} 
+});
 
 fastify.register(fastifyCors, {
   origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
