@@ -1,6 +1,5 @@
 import requests
 
-# L'URL de ton API (assurez-vous que Docker expose ce port)
 BASE_URL = "http://backend:5001"
 
 def test_register():
@@ -17,7 +16,6 @@ def test_register():
     else:
         print("❌ Erreur lors de l'enregistrement:", response.json())
 
-# Fonction pour tester la connexion de l'utilisateur (login)
 def test_login():
     url = f"{BASE_URL}/login"
     payload = {
