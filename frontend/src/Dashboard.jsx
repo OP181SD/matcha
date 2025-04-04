@@ -49,7 +49,7 @@ export function Dashboard() {
             setIsEditing(false);
         } catch (error) {
 
-            
+
             setError("Une erreur est survenue lors de la modification.");
             setTimeout(() => setError(''), 2000);
         }
@@ -60,7 +60,7 @@ export function Dashboard() {
         if (newUsername.trim() !== user?.username) {
             ApiUpdate();
         } else {
-            setError("Erreur : nom dutilsaiteur identique.");
+            setError("Erreur : Le nom d'utilisateur est identique à l'ancien.");
             setTimeout(() => setError(''), 2000);
         }
     };
@@ -125,14 +125,21 @@ export function Dashboard() {
                                     </button>
                                 </form>
                             ) : (
-                                <button
+
+                                <>
+                                  <button
                                     onClick={() => setIsEditing(true)}
                                     className="w-full bg-yellow-500 text-white p-2 rounded-md hover:bg-yellow-600 transition mt-4"
                                 >
                                     Modifier le nom d'utilisateur
                                 </button>
+
+                       
+                                </>
+                              
+
                             )}
-                        
+
                         </div>
                     </>
                 ) : (
