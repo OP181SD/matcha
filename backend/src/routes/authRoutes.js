@@ -1,8 +1,6 @@
 import { AuthRegister, AuthUpdate } from '../controllers/authControllers.js';
 import { AuthLogin } from '../controllers/authControllers.js';
-
-
-
+import { AuthToken } from '../controllers/authControllers.js';
 export default async function authRoutes(fastify, options) {
   fastify.post('/register', AuthRegister);
   fastify.post('/login', (request, reply) => {
@@ -11,4 +9,9 @@ export default async function authRoutes(fastify, options) {
   fastify.put('/update', async (request, reply) => {
     return AuthUpdate(request, reply);
   });
+
+  fastify.get('/token', async (request, reply) => {
+    return AuthToken(request, reply);
+  }
+  );
 }
