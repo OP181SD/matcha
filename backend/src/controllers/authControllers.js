@@ -50,6 +50,16 @@ export const AuthToken = async (request, reply) => {
 
 };
 
+export const testCookieRoute = async (request, reply) => {
+  const token = request.cookies.token; 
+  console.log('Token:', token); 
+  if (token) {
+    return reply.code(200).send({ message: 'Cookie trouvé', token });
+  } else {
+    return reply.code(400).send({ message: 'Cookie non trouvé' });
+  }
+}
+
 export const AuthLogin = async (request, reply) => {
   const { identifier, password } = request.body;
 
@@ -68,11 +78,20 @@ export const AuthLogin = async (request, reply) => {
   }
 
   const token = await getToken(user.username, user.email);
-  return reply.code(200).send({
-    message: 'Connexion réussie',
-    user,
-    token
-  });
+   // Configuration du cookie
+   reply
+   .setCookie('token', token, {
+       path: '/', 
+       httpOnly: true,  
+       sameSite: 'Strict', 
+       maxAge: 3600 * 1000 
+   })
+   .code(200)
+   .send({
+       message: 'Connexion réussie',
+       user
+   });
+  
 };
 
 
