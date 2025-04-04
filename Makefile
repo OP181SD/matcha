@@ -188,3 +188,19 @@ database-logs:
 
 build-database:
 	$(DOCKER_COMPOSE) build data-base
+
+# Service Tester
+tester-up:
+	$(DOCKER_COMPOSE) up -d tester
+
+tester-down:
+	$(DOCKER_COMPOSE) down tester
+
+tester-restart:
+	$(DOCKER_COMPOSE) restart tester
+
+tester-logs:
+	$(DOCKER_COMPOSE) logs -f tester
+
+build-tester:
+	$(DOCKER_COMPOSE) build tester

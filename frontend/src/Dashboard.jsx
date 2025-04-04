@@ -130,8 +130,6 @@ export function Dashboard() {
                 >
                     Retour à la connexion
                 </button>
-
-               
             </div>
         </div>
     );
