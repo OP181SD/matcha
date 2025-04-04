@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 export function Signup() {
+
+    const navigate = useNavigate(); 
     const [formData, setFormData] = useState({
         username: '',
         email: '',
@@ -35,6 +39,7 @@ export function Signup() {
                     setTimeout(() => setError(''), 2000);
                 } else if (response.status === 201) {
                     setSuccess("Inscription réussie avec succès !");
+                    navigate("/profil");
                     setTimeout(() => setSuccess(''), 2000);
                 }
                 return response.json();

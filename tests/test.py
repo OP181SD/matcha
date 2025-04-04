@@ -37,7 +37,6 @@ def test_login():
         print("❌ Erreur lors de la connexion:", response.json())
         return None
 
-# Fonction pour tester l'authentification avec le token
 def test_token_auth(token):
     if not token:
         print("❌ Aucun token, impossible de tester l'authentification.")

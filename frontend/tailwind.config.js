@@ -8,13 +8,13 @@ module.exports = {
     extend: {
       colors: {
         matcha: {
-          light: '#A8D08D',   // Vert matcha clair
-          DEFAULT: '#F6F3ED', // Beige matcha principal
-          dark: '#3C5B3D',    // Vert foncé matcha
+          light: '#A8D08D',   
+          DEFAULT: '#F6F3ED', 
+          dark: '#3C5B3D',    
         },
-        pen: '#594347',      // Brun foncé pour le texte et les bordures
-        pink: '#F2C9D4',     // Rose pâle pour les boutons
-        tea: '#A6BF80',      // Vert thé pour les boutons et accents
+        pen: '#594347',     
+        pink: '#F2C9D4',     
+        tea: '#A6BF80',     
       },
       fontFamily: {
         roboto: ['Roboto', 'sans-serif'],
