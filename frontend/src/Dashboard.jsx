@@ -60,7 +60,7 @@ export function Dashboard() {
         if (newUsername.trim() !== user?.username) {
             ApiUpdate();
         } else {
-            setError("Erreur : la modification a échoué");
+            setError("Erreur : nom dutilsaiteur identique.");
             setTimeout(() => setError(''), 2000);
         }
     };
@@ -115,6 +115,14 @@ export function Dashboard() {
                                     >
                                         Sauvegarder
                                     </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsEditing(false)}
+                                        className="w-full bg-red-500 text-white p-2 rounded-md hover:bg-red-600 transition mt-4"
+                                    >
+                                        Annuler
+                                    </button>
                                 </form>
                             ) : (
                                 <button
@@ -124,8 +132,7 @@ export function Dashboard() {
                                     Modifier le nom d'utilisateur
                                 </button>
                             )}
-
-                          
+                        
                         </div>
                     </>
                 ) : (

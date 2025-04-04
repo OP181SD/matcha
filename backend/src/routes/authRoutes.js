@@ -19,7 +19,7 @@ export default async function authRoutes(fastify) {
   }
   );
 
-  fastify.get('/test-cookie', testCookieRoute); // Route pour tester le cookie
+  fastify.get('/test-cookie', testCookieRoute);
 }
 
 

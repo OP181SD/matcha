@@ -69,7 +69,7 @@ export const AuthLogin = async (request, reply) => {
 
   const user = await ModelLogin(identifier);
   if (!user) {
-    return reply.code(404).send({ err_auth_login: 'Utilisateur non trouvé.' });
+    return reply.code(404).send({ err_auth_login: 'Erreur de connexion' });
   }
 
   let isPasswordValid = await byCryptCompare(password, user.password);
@@ -78,7 +78,6 @@ export const AuthLogin = async (request, reply) => {
   }
 
   const token = await getToken(user.username, user.email);
-   // Configuration du cookie
    reply
    .setCookie('token', token, {
        path: '/', 
