@@ -5,11 +5,12 @@ import { useNavigate } from 'react-router-dom';
 
 export function Signup() {
 
-    const navigate = useNavigate(); 
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         username: '',
         email: '',
-        password: ''
+        password: '',
+        confirmPassword: ''
     });
 
     const handleChange = (e) => {
@@ -58,7 +59,7 @@ export function Signup() {
                 <h2 className='text-2xl font-bold text-center mb-6 text-pen'>Inscription</h2>
                 {success && <p className="text-green-500 font-bold text-sm text-center mb-4">{success}</p>}
                 {error && <p className="text-red-500 font-bold text-sm text-center mb-4">{error}</p>}
-                
+
                 <div className='mb-4'>
                     <label htmlFor='username' className='block text-pen font-semibold mb-2'>Nom</label>
                     <input
@@ -72,7 +73,7 @@ export function Signup() {
                         required
                     />
                 </div>
-                
+
                 <div className='mb-4'>
                     <label htmlFor='email' className='block text-pen font-semibold mb-2'>Email</label>
                     <input
@@ -86,7 +87,9 @@ export function Signup() {
                         required
                     />
                 </div>
-                
+
+
+
                 <div className='mb-4'>
                     <label htmlFor='password' className='block text-pen font-semibold mb-2'>Mot de passe</label>
                     <input
@@ -100,13 +103,27 @@ export function Signup() {
                         required
                     />
                 </div>
-                
+
+                <div className='mb-4'>
+                    <label htmlFor='confirm-password' className='block text-pen font-semibold mb-2'>Confirmer le mot de passe</label>
+                    <input
+                        type='password'
+                        id='confirm-password'
+                        name='confirmPassword'
+                        value={formData.confirmPassword}
+                        onChange={handleChange}
+                        autoComplete="new-password"
+                        className='w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-tea'
+                        required
+                    />
+                </div>
+
                 <button
                     type='submit'
                     className='w-full mb-4 bg-tea text-white p-2 rounded-md hover:bg-[#74a12e] transition'>
                     S'inscrire
                 </button>
-                
+
                 <Link to="/">
                     <button
                         className='w-full bg-tea text-white p-2 rounded-md hover:bg-[#74a12e] transition'>

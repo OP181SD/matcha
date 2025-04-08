@@ -3,12 +3,17 @@ import { byCryptCompare, generateToken, verifyToken, SECRET_KEY } from '../../co
 
 export const AuthRegister = async (request, reply) => {
 
-  const { username, email, password } = request.body;
+  const { username, email, password, confirmPassword } = request.body;
 
   if (!username || !email || !password) {
     return reply.code(400).send({ error: 'Tout les champs sont requis' });
   }
 
+  if (password !== confirmPassword)
+  {
+      return reply.status(400).send({ message: 'Les mots de passe ne corresspond pas '});
+  }
+  
   try {
     const checkUsers = await ModelDuplicate(username, email);
     if (checkUsers.error_users) {
