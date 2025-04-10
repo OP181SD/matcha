@@ -23,3 +23,4 @@ fastify.register(fastifyPostgres, {
 });
 
 export const SECRET_KEY = 'MATCHACRPYT';
+export const API_URL = 'http://127.0.0.1:5001';

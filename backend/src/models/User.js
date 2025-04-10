@@ -21,13 +21,41 @@ export const ModelRegister = async (username, email ,password) => {
     return rows;
 };
 
+export const ModelLogin = async (identifier) => {
+    console.log("Identifier reçu! :", identifier); 
 
-export const ModelLogin = async (username, email) => {
-    const log = 'SELECT * FROM users WHERE username=$1 AND email=$2';
-    const { rows } = await fastify.pg.query(log, [username, email]);
+    const log = 'SELECT * FROM users WHERE username=$1 OR email=$2';
+    const { rows } = await fastify.pg.query(log, [identifier, identifier]); 
 
-    // console.log("Résultats de la requête SQL:", rows);
     if (rows.length > 0) {
+        console.log("Identifier reçu! :",rows[0].id);
         return rows[0];
     }
+    return null;  
 };
+
+export const ModelUpdate = async (username, id) => {
+    try {
+    
+      const update = 'UPDATE users SET username = $1 WHERE id = $2 RETURNING *';
+      
+    
+      const { rows } = await fastify.pg.query(update, [username, id]);
+  
+    
+      if (rows.length > 0) {
+        console.log("User updated, new username: ", rows[0].username);
+        return { status: 'success', user: rows[0] };
+      }
+  
+    
+      console.log("User not found for the given ID");
+      return { status: 'error', message: 'User not found' };
+  
+    } catch (error) {
+     
+      console.error('Error updating user:', error);
+      return { status: 'error', message: 'An error occurred during the update' };
+    }
+  };
+  

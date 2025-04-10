@@ -1,7 +1,77 @@
+/* 📂 styles/global.css ou styles/tailwind.css */
+/* Ce fichier contient les styles globaux de l'application */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 body {
-    @apply font-nunito bg-matcha text-cream;
-}  
+    @apply bg-matcha;
+}
+
+/* 📂 styles/responsive.css */
+/* Fichier dédié aux styles responsives */
+@media (max-width: 500px) {
+    .mobile-text h1 {
+        @apply text-6xl px-4 py-2; 
+    }
+}
+
+/* 📂 styles/typography.css */
+/* Fichier pour les styles de typographie */
+.title-matcha {
+    @apply text-8xl font-black text-pen;
+}
+
+.title-japanese {
+    @apply text-8xl font-semibold font-quicksand text-[#F2C9D4] px-4 py-2;
+}
+
+/* 📂 styles/buttons.css */
+/* Fichier pour les styles des boutons */
+.btn-style {
+    @apply border-[2px] text-pen font-bold font-quicksand px-4 py-2 sm:px-6 sm:py-3 rounded-md;
+}
+
+.btn-inscription {
+    @apply bg-[#F2C9D4] border-[#594347] text-[16px] sm:text-[18px] md:text-[20px];
+}
+
+.btn-connexion {
+    @apply bg-[#A6BF80] border-[#594347] text-[16px] sm:text-[18px] md:text-xl;
+}
+
+/* 📂 styles/footer.css */
+/* Fichier pour le style du footer */
+.footer-style {
+    @apply absolute bottom-0 left-1/2 text-pen font-bold transform text-[16px] sm:text-[18px] md:text-[20px] 
+    -translate-x-1/2 border-t-[2px] border-[#594347] px-4 py-2 whitespace-nowrap flex justify-center items-center;
+}
+
+/* 📂 styles/text-effects.css */
+/* Fichier pour les styles d'effets de texte */
+.text-outline-mat {
+    color: #A6BF80; 
+    text-shadow: 
+        3px 3px 0 #594347,
+        -3px 3px 0 #594347,
+        3px -3px 0 #594347,
+        -3px -3px 0 #594347,
+        0px 3px 0 #594347,
+        0px -3px 0 #594347,
+        3px 0px 0 #594347,
+        -3px 0px 0 #594347;
+}
+
+.text-outline-cha {
+    color: #F2C9D4; 
+    text-shadow: 
+        3px 3px 0 #594347,
+        -3px 3px 0 #594347,
+        3px -2px 0 #594347,
+        -3px -2px 0 #594347,
+        1px 2px 0 #594347,
+        0px -2px 0 #594347,
+        2px 0px 0 #594347,
+        -2px 0px 0 #594347;
+}
