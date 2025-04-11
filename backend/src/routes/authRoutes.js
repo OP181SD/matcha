@@ -1,25 +1,57 @@
-import { AuthRegister, AuthUpdate } from '../controllers/authControllers.js';
-import { AuthLogin } from '../controllers/authControllers.js';
-import { AuthToken, testCookieRoute } from '../controllers/authControllers.js';
+import fastify from 'fastify';
+import { AuthRegister, AuthLogin, AuthToken, AuthUpdate } from '../controllers/authControllers.js';
+import { checkAuthToken } from '../controllers/authControllers.js'; 
 
-
-
-export default async function authRoutes(fastify) {
+const registerRoute = (fastify) => {
   fastify.post('/register', AuthRegister);
-  fastify.post('/login', (request, reply) => {
-    return AuthLogin(request, reply);
+};
+
+const loginRoute = (fastify) => {
+  fastify.post('/login', AuthLogin);
+};
+
+const tokenRoute = (fastify) => {
+  fastify.post('/token', AuthToken);
+};
+
+const updateRoute = (fastify) => {
+  fastify.put('/update', AuthUpdate);
+};
+
+
+const protectedRoute = (fastify) => {
+  fastify.get('/protected', { preHandler: checkAuthToken }, async (request, reply) => {
+    return reply.send({ message: 'Accès autorisé', user: request.user });
   });
+};
 
-  fastify.put('/update', async (request, reply) => {
-    return AuthUpdate(request, reply);
+const userProfileRoute = (fastify) => {
+  fastify.get('/user-profile', { preHandler: checkAuthToken }, async (request, reply) => {
+    return reply.send({ message: 'Profil utilisateur', user: request.user });
   });
+};
 
-  fastify.get('/token', async (request, reply) => {
-    return AuthToken(request, reply);
-  }
-  );
-
-  fastify.get('/test-cookie', testCookieRoute);
+const updateProfilRoute = (fastify) => {
+  fastify.put('/update-profile', { preHandler: checkAuthToken }, async (request, reply) => {
+    return reply.send({ message: 'Profil mis à jour avec succès' });
+  });
 }
 
+// Route de déconnexion
+const logoutRoute = (fastify) => {
+  fastify.get('/logout', async (request, reply) => {
+    reply.clearCookie('access_token');
+    return reply.send({ message: 'Déconnexion réussie' });
+  });
+};
 
+export default async function authRoutes(fastify) {
+  registerRoute(fastify);
+  loginRoute(fastify);
+  tokenRoute(fastify);
+  updateRoute(fastify);
+  protectedRoute(fastify);
+  updateProfilRoute(fastify);
+  userProfileRoute(fastify);
+  logoutRoute(fastify);
+}

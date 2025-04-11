@@ -19,7 +19,6 @@ export const verifyToken = jwt.verify;
 
 fastify.register(fastifyPostgres, {
     connectionString: process.env.DATABASE_URL
-    
 });
 
 export const SECRET_KEY = 'MATCHACRPYT';
