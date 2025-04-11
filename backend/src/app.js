@@ -1,4 +1,4 @@
-import { fastify, SECRET_KEY, verifyToken } from '../config/import.js';
+import { fastify } from '../config/import.js';
 import authRoutes from './routes/authRoutes.js';
 import fastifyCors from '@fastify/cors';
 import fastifyCookie from 'fastify-cookie';

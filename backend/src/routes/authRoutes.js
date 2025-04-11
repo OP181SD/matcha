@@ -1,5 +1,5 @@
 import fastify from 'fastify';
-import { AuthRegister, AuthLogin, AuthToken, AuthUpdate } from '../controllers/authControllers.js';
+import { AuthRegister, AuthLogin, AuthToken, AuthUpdate, AuthProfile } from '../controllers/authControllers.js';
 import { checkAuthToken } from '../controllers/authControllers.js'; 
 
 const registerRoute = (fastify) => {
@@ -32,10 +32,12 @@ const userProfileRoute = (fastify) => {
 };
 
 const updateProfilRoute = (fastify) => {
-  fastify.put('/update-profile', { preHandler: checkAuthToken }, async (request, reply) => {
-    return reply.send({ message: 'Profil mis à jour avec succès' });
+  fastify.put('/profil', { preHandler: checkAuthToken }, async (request, reply) => {
+    console.log('Dans la route /profil');
+    return AuthProfile(request, reply);
   });
-}
+};
+
 
 // Route de déconnexion
 const logoutRoute = (fastify) => {

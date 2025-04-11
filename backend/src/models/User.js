@@ -22,13 +22,11 @@ export const ModelRegister = async (username, email, password) => {
 };
 
 export const ModelLogin = async (identifier) => {
-  console.log("Identifier reçu! :", identifier);
 
   const log = 'SELECT * FROM users WHERE username=$1 OR email=$2';
   const { rows } = await fastify.pg.query(log, [identifier, identifier]);
 
   if (rows.length > 0) {
-    console.log("Identifier reçu! :", rows[0].id);
     return rows[0];
   }
   return null;
@@ -67,18 +65,22 @@ export const ModelDelete = async (id) => {
 };
 
 
-export const ModelNextProfile = async (id, firstname, profil_picture) => {
+export const ModelNextProfile = async (id, firstname) => {
+  try {
 
-    try {
-        const update = 'UPDATE users SET firstname = $1, profil_picture = $2 WHERE id = $3 RETURNING *';
-        const { rows } = await fastify.pg.query(update, [id,firstname, profil_picture]);
+    const update = 'UPDATE users SET firstname = $1 WHERE id = $2 RETURNING *';
 
-        if (rows.length > 0) {
-            return { status: 'success', user: rows[0] };
-        }
-        return { status: 'error', message: 'User not found' };
-    } catch (error) {
-      
+    const { rows } = await fastify.pg.query(update, [firstname, id]);
+
+    if (rows.length > 0) {
+      return { status: 'success', user: rows[0] };
     }
 
-}
+    return { status: 'error', message: 'User not found' };
+
+  } catch (error) {
+    console.log("Erreur lors de la mise à jour du profil.");
+    console.error('Erreur lors de la mise à jour du profil :', error);
+    return { status: 'error', message: 'Erreur serveur' };
+  }
+};

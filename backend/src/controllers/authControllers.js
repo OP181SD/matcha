@@ -9,7 +9,7 @@ export const AuthRegister = async (request, reply) => {
     return reply.code(400).send({ error: 'Tout les champs sont requis' });
 
   if (password !== confirmPassword)
-      return reply.status(400).send({ message: 'Les mots de passe ne corresspond pas '});
+    return reply.status(400).send({ message: 'Les mots de passe ne corresspond pas ' });
 
   try {
     const checkUsers = await ModelDuplicate(username, email);
@@ -25,34 +25,30 @@ export const AuthRegister = async (request, reply) => {
 }
 
 export const AuthProfile = async (request, reply) => {
-
-  const  { firstname, profilPicture } = request.body;
+  const { firstname } = request.body;
   const { id } = request.user;
 
-  if (!firstname || !profilPicture) {
-
-    return reply.code(400).send({ error: 'Tout les champs sont requis' });
+  
+  if (!firstname) {
+    return reply.code(400).send({ error: 'Le prénom est requis' });
   }
 
   try {
-
-    const users = await ModelNextProfile(id, firstname, profilPicture);
-    if (!users) {
-      return reply.code(404).send({ error: 'Erreur de connexion' });
+    const user = await ModelNextProfile(id, firstname);
+    if (!user) {
+      return reply.code(404).send({ error: 'Utilisateur non trouvé' });
     }
-    return reply.code(201).send({ ok: 'profil ajouter' }, users);
+    return reply.code(201).send({ message_xxx: 'Profil mis à jour', user });
+  } catch (error) {
+    return reply.code(500).send({ error: 'Une erreur est survenue' });
   }
-  catch (error) {
-    return (reply.code(500).send({ error: 'Une erreur est survenu ' }));
-  }
+};
 
-}
-  
 
-export const getToken = async (username, email) => {
-  const payload = { username, email };
+export const getToken = async (username, email, id) => {
+  const payload = { username, email, id};
   return generateToken(payload, SECRET_KEY, {
-    expiresIn: '30 seconds',
+    expiresIn: '1h',
   });
 };
 
@@ -105,21 +101,21 @@ export const AuthLogin = async (request, reply) => {
     return reply.code(401).send({ err_auth_login: 'Mot de passe incorrect.' });
   }
 
-  const token = await getToken(user.username, user.email);
-   reply
-   .setCookie('access_token', token, {
-       path: '/', 
-       httpOnly: true,  
-       sameSite: 'Strict', 
-       maxAge: 3600 * 1000,
-       secure: 'false'
-   })
-   .code(200)
-   .send({
-       message: 'Connexion réussie',
-       user
-   });
-  
+  const token = await getToken(user.username, user.email, user.id);
+  reply
+    .setCookie('access_token', token, {
+      path: '/',
+      httpOnly: true,
+      sameSite: 'Strict',
+      maxAge: 3600 * 1000,
+      secure: 'false'
+    })
+    .code(200)
+    .send({
+      message: 'Connexion réussie',
+      user
+    });
+
 };
 
 export const AuthUpdate = async (request, reply) => {
