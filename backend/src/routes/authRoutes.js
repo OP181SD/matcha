@@ -1,27 +1,23 @@
-import { AuthRegister } from '../controllers/authControllers.js';
-import { AuthRegisterPartTwo } from '../controllers/authControllers.js';
+import { AuthRegister, AuthRegisterPartTwo, verifyJWT } from '../controllers/authControllers.js';
 
 const registerRoute = (fastify) => {
   fastify.post('/register', AuthRegister);
 };
 
+const dashboardRoute = (fastify) => {
+  fastify.get('/dashboard', { preHandler: verifyJWT }, async (request, reply) => {
 
-const TokenDisplay = (fastify) => {
-  fastify.get('/token', async (request, reply) => {
-    const token = request.cookies.token;
-    if (!token) {
-      return reply.status(401).send({ error: 'Token non trouvé' });
-    }
-    return reply.send({ token });
+    return reply.send({ message: 'Bienvenue dans votre dashboard!' });
   });
 };
 
-const profilRoute = (fastify) => {
-  fastify.put('/profil', AuthRegisterPartTwo);
-}
+const profileRoute = (fastify) => {
+  fastify.put('/profil', { preHandler: verifyJWT }, AuthRegisterPartTwo);
+};
 
 export default async function authRoutes(fastify) {
+
   registerRoute(fastify);
-  TokenDisplay(fastify);
-  profilRoute(fastify);
+  dashboardRoute(fastify);
+  profileRoute(fastify);
 }

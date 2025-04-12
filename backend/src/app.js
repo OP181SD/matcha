@@ -2,11 +2,11 @@ import { fastify } from '../config/import.js';
 import authRoutes from './routes/authRoutes.js';
 import fastifyCors from '@fastify/cors';
 import fastifyCookie from 'fastify-cookie';
-import fastifyJwt from '@fastify/jwt';
+
 
 
 fastify.register(fastifyCookie, {
-    secret: 'your-secret-key',  
+    secret: 'your-secret-key',
     parseOptions: {}
 });
 
@@ -18,11 +18,8 @@ fastify.register(fastifyCors, {
     credentials: true, // Permet l'envoi de cookies
 });
 
-    // Enregistrement de fastify-jwt
-fastify.register(fastifyJwt, {
-    secret: process.env.JWT_SECRET || 'supersecret',
-    sign: { expiresIn: '1h' }, // Durée de validité du token
-});
+// Enregistrement de fastify-jwt
+
 
 // Enregistrement des routes d'authentification
 fastify.register(authRoutes);

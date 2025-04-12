@@ -1,36 +1,51 @@
 import fastify from 'fastify';
-import { ModelId, ModelNextProfile, modelRegister } from '../models/User.js';
+import { modelRegister } from '../models/User.js';
+import { ModelNextProfile } from '../models/User.js';
+
 
 export const AuthRegister = async (request, reply) => {
 
   const { username, email, password } = request.body;
 
   try {
+
     const user = await modelRegister(username, email, password);
 
-    console.log('Utilisateur enregistré:', user[0].id); // Affichage ici
-  
+    console.log('Utilisateur enregistré:', user[0].id);
+
+    const token = await reply.jwtSign({ id: user[0].id });
+
     reply.setCookie('id', user[0].id, {
       httpOnly: true,
-      secure: false, // true si HTTPS
+      secure: false, 
+      sameSite: 'Strict',
+      path: '/',
+    });
+
+    reply.setCookie('accces_token', token, {
+      httpOnly: true,
+      secure: false, 
       sameSite: 'Strict',
       path: '/',
     });
 
     reply.send({ message: 'Utilisateur enregistré avec succès', user });
+
   } catch (error) {
     console.error('Erreur lors de l\'enregistrement de l\'utilisateur:', error);
     reply.status(500).send({ error: 'Erreur lors de l\'enregistrement de l\'utilisateur' });
-
   }
 };
 
+
 export const AuthRegisterPartTwo = async (request, reply) => {
-  const userId = request.cookies.id;
   const { firstname } = request.body;
 
+
+  const userId = request.user?.id;
+
   if (!userId) {
-    return reply.status(401).send({ error: 'Utilisateur non authentifié !' });
+    return reply.status(401).send({ error: 'Utilisateur non authentifié' });
   }
 
   if (!firstname) {
@@ -38,20 +53,10 @@ export const AuthRegisterPartTwo = async (request, reply) => {
   }
 
   try {
+
     const updatedUser = await ModelNextProfile(userId, firstname);
 
     if (updatedUser.status === 'success') {
-      // ✅ Générer le JWT avec fastify-jwt
-      const token = await reply.jwtSign({ id: userId });
-
-      // ✅ Stocker le JWT dans un cookie HTTP-only
-      reply.setCookie('token', token, {
-        httpOnly: true,
-        secure: false, // true si HTTPS
-        sameSite: 'Strict',
-        path: '/',
-      });
-
       return reply.send({ message: 'Profil mis à jour avec succès', user: updatedUser.user });
     } else {
       return reply.status(404).send({ error: updatedUser.message });
@@ -63,20 +68,21 @@ export const AuthRegisterPartTwo = async (request, reply) => {
 };
 
 
-export const DisplayToken = async (request, reply) => {
 
-  const token = request.cookies.token;
+export const verifyJWT = async (request, reply) => {
+  const token = request.cookies.accces_token;
+    console.log('Token reçu:', token);
 
   if (!token) {
-    return reply.status(401).send({ error: 'Token non trouvé' });
+    return reply.status(401).send({ error: 'Token manquant ou invalide' });
   }
-  
+
   try {
-    const decoded = await request.jwtVerify();
-    return reply.send({ message: 'Token valide', decoded });
+
+    await request.jwtVerify();
+
   } catch (error) {
     console.error('Erreur lors de la vérification du token:', error);
-    return reply.status(401).send({ error: 'Token invalide' });
+    return reply.status(401).send({ error: 'Token invalide ou expiré' });
   }
-  // const token = request.cookies.token;
-}
+};
