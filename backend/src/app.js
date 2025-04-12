@@ -1,46 +1,65 @@
-import { fastify } from '../config/import.js';
-import authRoutes from './routes/authRoutes.js';
-import fastifyCors from '@fastify/cors';
-import fastifyCookie from 'fastify-cookie';
+// src/app.js
+import Fastify from 'fastify';
+import fastifyPostgres from '@fastify/postgres';
+import fastifyJwt from '@fastify/jwt';
+import fastifyCookie from '@fastify/cookie';
+import dotenv from 'dotenv';
+import { API_URL } from '../config/config.js';
 
 
+dotenv.config();
 
-fastify.register(fastifyCookie, {
-    secret: 'your-secret-key',
-    parseOptions: {}
+const fastify = Fastify({
+    logger: true,
 });
 
-// Enregistrement de fastify-cors
-fastify.register(fastifyCors, {
-    origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true, // Permet l'envoi de cookies
+
+fastify.register(fastifyPostgres, {
+    connectionString: process.env.DATABASE_URL,
 });
 
-// Enregistrement de fastify-jwt
+fastify.register(fastifyCookie);
 
 
-// Enregistrement des routes d'authentification
-fastify.register(authRoutes);
+fastify.register(fastifyJwt, {
+    secret: process.env.JWT_SECRET,
+    cookie: {
+        cookieName: 'access_token',
+        signed: false,
+    },
+});
 
-console.log("Démarrage du serveur...");
-
-fastify.get('/', async () => {
-    const client = await fastify.pg.connect();
+fastify.decorate("authenticate", async function (request, reply) {
     try {
-        const { rows } = await client.query('SELECT * FROM users');
-        console.log("Connected !!!");
-        return rows;
-    } finally {
-        client.release();
+        await request.jwtVerify();
+    } catch (err) {
+        reply.code(401).send({ error: 'Unauthorized' });
     }
 });
 
-try {
-    await fastify.listen({ port: 5001, host: '0.0.0.0' });
-    console.log("Serveur démarré! sur http://localhost:5001");
-} catch (error) {
-    fastify.log.error(error);
-    process.exit(1);
-}
+fastify.get('/', async (_, reply) => {
+    try {
+        const client = await fastify.pg.connect();
+        client.release();
+        reply.status(201).send({
+            connexion_status: 'Connexion réussie',
+        })
+    } catch (error) {
+        reply.status(500).send({
+            message: 'Erreur de connexion à la base de données',
+            error: error.message,
+        })
+    }
+})
+
+const start = async () => {
+    try {
+        fastify.listen({ port: 5001, host: '0.0.0.0' });
+        console.log(`🚀 Server running at ${API_URL}`);
+    } catch (err) {
+        fastify.log.error(err);
+        process.exit(1);
+    }
+};
+
+start();
