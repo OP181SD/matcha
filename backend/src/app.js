@@ -2,19 +2,29 @@ import { fastify } from '../config/import.js';
 import authRoutes from './routes/authRoutes.js';
 import fastifyCors from '@fastify/cors';
 import fastifyCookie from 'fastify-cookie';
+import fastifyJwt from '@fastify/jwt';
+
 
 fastify.register(fastifyCookie, {
-    secret: 'your-secret-key',
+    secret: 'your-secret-key',  
     parseOptions: {}
 });
 
+// Enregistrement de fastify-cors
 fastify.register(fastifyCors, {
     origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true,
+    credentials: true, // Permet l'envoi de cookies
 });
 
+    // Enregistrement de fastify-jwt
+fastify.register(fastifyJwt, {
+    secret: process.env.JWT_SECRET || 'supersecret',
+    sign: { expiresIn: '1h' }, // Durée de validité du token
+});
+
+// Enregistrement des routes d'authentification
 fastify.register(authRoutes);
 
 console.log("Démarrage du serveur...");
@@ -29,7 +39,6 @@ fastify.get('/', async () => {
         client.release();
     }
 });
-
 
 try {
     await fastify.listen({ port: 5001, host: '0.0.0.0' });

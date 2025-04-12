@@ -9,12 +9,21 @@ export const ModelDuplicate = async (username, email) => {
   return { ok_users: 'Ok' };
 };
 
+export const ModelId = async (id) => {
+  const users = 'SELECT * FROM users WHERE id=$1';
+  const { rows } = await fastify.pg.query(users, [id]);
+  if (rows > 0) {
+    return { error_users: 'Cet utilisateur n\'existe pas.' };
+  }
+  return { ok_users: 'Ok' };
+}
+
 export const ModelHashedPassword = async (password) => {
   const hashedPassword = await byCryptHash(password, 10);
   return hashedPassword;
 };
 
-export const ModelRegister = async (username, email, password) => {
+export const modelRegister = async (username, email, password) => {
   const insert = `INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING *;`;
   const hashedPassword = await ModelHashedPassword(password);
   const { rows } = await fastify.pg.query(insert, [username, email, hashedPassword]);
