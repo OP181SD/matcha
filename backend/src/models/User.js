@@ -1,5 +1,4 @@
 import { hashPassword } from '../utils/hash.js';
-import { validateRegisterFields, validateDuplicateFields } from '../validators/authValidation.js';
 
 export async function modelId(request, reply) {
     const { id } = request.body;
@@ -35,29 +34,17 @@ export async function modelDeleteAccount(request, reply) {
     }
 }
 
-export async function modelRegister(request, reply) {
+export async function modelRegister(request) {
     const { username, email, password } = request.body;
-
-    const isValidFields = await validateRegisterFields(request, reply);
-    if (!isValidFields) return;
-
-    const isUnique = await validateDuplicateFields(request, reply);
-    if (!isUnique) return;
-
     const cryptedPassword = await hashPassword(password);
 
     try {
         const result = await request.server.pg.query(
-            'INSERT INTO users (username, email, password) VALUES ($1,$2, $3) RETURNING id, username, email;',
+            'INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING id, username, email;',
             [username, email, cryptedPassword]
         );
-
-        return reply.code(200).send({
-            message: 'Inscription réussie',
-            userId: result.rows[0].id,
-            users: result.rows[0]
-        });
+        return result.rows[0];
     } catch (err) {
-        reply.code(500).send({ error: 'Erreur lors de l\'inscription' });
+        throw new Error('Erreur lors de l\'inscription'); 
     }
 }

@@ -16,7 +16,7 @@ fastify.register(fastifyPostgres, {
 
 // Plugins et Routes 
 fastify.register(fastifyCookie);
-fastify.register(authRoutes);
+fastify.register(authRoutes, {prefix: 'auth'});
 
 fastify.register(fastifyJwt, {
     secret: JWT_SECRET,
