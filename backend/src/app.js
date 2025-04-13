@@ -3,26 +3,23 @@ import Fastify from 'fastify';
 import fastifyPostgres from '@fastify/postgres';
 import fastifyJwt from '@fastify/jwt';
 import fastifyCookie from '@fastify/cookie';
-import dotenv from 'dotenv';
-import { API_URL } from '../config/config.js';
-
-
-dotenv.config();
+import { API_URL, DATABASE_URL, JWT_SECRET } from '../config/config.js';
+import { authRoutes } from './routes/authRoutes.js';
 
 const fastify = Fastify({
     logger: true,
 });
 
-
 fastify.register(fastifyPostgres, {
-    connectionString: process.env.DATABASE_URL,
+    connectionString: DATABASE_URL,
 });
 
+// Plugins et Routes 
 fastify.register(fastifyCookie);
-
+fastify.register(authRoutes);
 
 fastify.register(fastifyJwt, {
-    secret: process.env.JWT_SECRET,
+    secret: JWT_SECRET,
     cookie: {
         cookieName: 'access_token',
         signed: false,
@@ -37,7 +34,7 @@ fastify.decorate("authenticate", async function (request, reply) {
     }
 });
 
-fastify.get('/', async (_, reply) => {
+fastify.get('/connection_db', async (_, reply) => {
     try {
         const client = await fastify.pg.connect();
         client.release();
@@ -51,6 +48,7 @@ fastify.get('/', async (_, reply) => {
         })
     }
 })
+
 
 const start = async () => {
     try {
