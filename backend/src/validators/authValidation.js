@@ -22,9 +22,8 @@ export async function validateDuplicateFields(request, reply) {
     );
 
     if (existingUser.rows.length > 0) {
-        reply.code(400).send({ error: 'L\'email ou le nom d\'utilisateur est déjà pris' });
+        reply.code(400).send({ DuplicateRegisterror: 'L\'email ou le nom d\'utilisateur est déjà pris' });
         return false;
     }
-
     return true;
 }

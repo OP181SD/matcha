@@ -48,3 +48,21 @@ export async function modelRegister(request) {
         throw new Error('Erreur lors de l\'inscription'); 
     }
 }
+
+export async function modelUpdateFields(request) {
+    const { username, id } = request.body;
+
+    if (!username || !id) {
+        throw new Error('Champs "username" et "id" requis.');
+    }
+
+    try {
+        const result = await request.server.pg.query(
+            'UPDATE users SET username = $1 WHERE id = $2 RETURNING *',
+            [username, id]
+        );
+        return result.rows[0];
+    } catch (err) {
+        throw new Error("Erreur lors de la mise à jour du username.");
+    }
+}

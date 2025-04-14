@@ -1,8 +1,8 @@
-// src/app.js
 import Fastify from 'fastify';
 import fastifyPostgres from '@fastify/postgres';
 import fastifyJwt from '@fastify/jwt';
 import fastifyCookie from '@fastify/cookie';
+import formbody from '@fastify/formbody';
 import { API_URL, DATABASE_URL, JWT_SECRET } from '../config/config.js';
 import { authRoutes } from './routes/authRoutes.js';
 
@@ -15,6 +15,7 @@ fastify.register(fastifyPostgres, {
 });
 
 // Plugins et Routes 
+fastify.register(formbody);
 fastify.register(fastifyCookie);
 fastify.register(authRoutes, {prefix: 'auth'});
 

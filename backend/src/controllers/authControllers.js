@@ -1,6 +1,5 @@
-import { modelRegister} from "../models/User.js";
+import { modelRegister, modelUpdateFields} from "../models/User.js";
 import { validateRegisterFields, validateDuplicateFields } from '../validators/authValidation.js';
-
 
 export async function authRegister(request, reply) {
     
@@ -22,5 +21,20 @@ export async function authRegister(request, reply) {
         });
     } catch (err) {
         return reply.code(500).send({ error: 'Erreur lors de l\'inscription' });
+    }
+}
+
+
+export async function authUpdateFields(request, reply) {
+    try {
+       
+        const up = await modelUpdateFields(request);
+        if (up) {
+            reply.code(200).send({ ok: 'Succès' });
+        } else {
+            reply.code(500).send({ authFields_error: 'Échec de la mise à jour.' });
+        }
+    } catch (err) {
+        reply.code(400).send({ error_auth_fields: err.message });
     }
 }
