@@ -5,6 +5,7 @@ import fastifyCookie from '@fastify/cookie';
 import formbody from '@fastify/formbody';
 import { API_URL, DATABASE_URL, JWT_SECRET } from '../config/config.js';
 import { authRoutes } from './routes/authRoutes.js';
+import cors from '@fastify/cors';
 
 // pour le token JWT dans authControllers.js
 export { fastify };
@@ -17,6 +18,12 @@ fastify.register(fastifyPostgres, {
     connectionString: DATABASE_URL,
 });
 
+// CORS pour les requêtes entre le frontend et le backend
+fastify.register(cors, {
+    origin: 'http://localhost:3000', // frontend
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true // nécessaire pour autoriser les cookies
+  });
 
 fastify.register(fastifyCookie);
 

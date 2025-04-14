@@ -6,5 +6,5 @@ export const authRoutes = async (fastify) => {
     fastify.post('/update', authUpdateFields);
     fastify.post ('/login', authLogin);
     fastify.delete('/',modelDeleteAccount);
-    fastify.post('/id',modelId);
+    fastify.post('/auth/me',modelId);
 }

@@ -1,62 +1,60 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export function Dashboard() {
-  const [user, setUser] = useState(null); // Pour stocker les données utilisateur
-  const [error, setError] = useState('');
+    const navigate = useNavigate();
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const response = await fetch('http://localhost:5001/user', {
-          method: 'GET',
-          credentials: 'include', // Envoie les cookies pour la session
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const res = await fetch('http://localhost:5001/auth/me', {
+                    method: 'GET',
+                    credentials: 'include', // important pour envoyer les cookies
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    setUser(data.user);
+                } else {
+                    setError('Non autorisé');
+                    navigate('/login');
+                }
+            } catch (err) {
+                setError('Erreur serveur');
+                navigate('/login');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchUser();
+    }, [navigate]);
+
+    const handleLogout = async () => {
+        await fetch('http://localhost:5001/auth/logout', {
+            method: 'POST',
+            credentials: 'include',
         });
-
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data.user); // Stocke les données de l'utilisateur
-        } else {
-          setError('Erreur de récupération des données utilisateur');
-        }
-      } catch (error) {
-        setError('Erreur de connexion au serveur');
-        console.error('Error fetching user data:', error);
-      }
+        navigate('/login');
     };
 
-    fetchUserData();
-  }, []); // L'effet se déclenche au montage du composant (une seule fois)
+    if (loading) return <p>Chargement...</p>;
+    if (error) return <p>{error}</p>;
 
-  return (
-    <div className="h-screen flex justify-center items-center bg-gradient-to-r from-blue-400 via-indigo-500 to-purple-600">
-      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg">
-        <h2 className="text-3xl font-extrabold text-center mb-6 text-gray-800">
-          Bienvenue sur votre Dashboard
-        </h2>
-        
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-        
-        {user ? (
-          <div className="space-y-4">
-            <div className="bg-gray-100 p-6 rounded-lg shadow-md">
-              <h3 className="text-xl font-semibold text-gray-700">Nom d'utilisateur</h3>
-              <p>{user.username}</p>
-            </div>
-
-            <div className="bg-gray-100 p-6 rounded-lg shadow-md">
-              <h3 className="text-xl font-semibold text-gray-700">Email</h3>
-              <p>{user.email}</p>
-            </div>
-
-            <div className="bg-gray-100 p-6 rounded-lg shadow-md">
-              <h3 className="text-xl font-semibold text-gray-700">Prénom</h3>
-              <p>{user.firstname}</p>
-            </div>
-          </div>
-        ) : (
-          <p>Chargement des données utilisateur...</p>
-        )}
-      </div>
-    </div>
-  );
+    return (
+        <div>
+            <h1>Bienvenue sur le dashboard !</h1>
+            {user && (
+                <div>
+                    <p>Bonjour, {user.username} 👋</p>
+                    <p>Email : {user.email}</p>
+                </div>
+            )}
+            <button onClick={handleLogout}>Se déconnecter</button>
+        </div>
+    );
 }

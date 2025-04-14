@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 export function Signup() {
-  const navigate = useNavigate(); // Pour la navigation après l'inscription
+  const navigate = useNavigate(); 
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -10,7 +10,7 @@ export function Signup() {
   const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Empêche le rechargement de la page à l'envoi du formulaire
+    e.preventDefault(); 
 
     if (password !== confirmPassword) {
       setError('Les mots de passe ne correspondent pas');
@@ -18,20 +18,20 @@ export function Signup() {
     }
 
     try {
-      const response = await fetch('http://localhost:5001/register', {
+      const response = await fetch('http://localhost:5001/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ username, email, password, confirmPassword }),
-        credentials: 'include', // Envoie les cookies pour générer le token
+        credentials: 'include', 
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        // Inscription réussie, redirection vers la page login (ou autre)
-        navigate('/profil'); // Redirige vers la page login
+        navigate('/login'); 
+        console.log('Inscription réussie', data);
       } else {
         setError(data.error || 'Une erreur est survenue');
       }
