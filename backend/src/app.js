@@ -6,6 +6,9 @@ import formbody from '@fastify/formbody';
 import { API_URL, DATABASE_URL, JWT_SECRET } from '../config/config.js';
 import { authRoutes } from './routes/authRoutes.js';
 
+// pour le token JWT dans authControllers.js
+export { fastify };
+
 const fastify = Fastify({
     logger: true,
 });
@@ -14,10 +17,8 @@ fastify.register(fastifyPostgres, {
     connectionString: DATABASE_URL,
 });
 
-// Plugins et Routes 
-fastify.register(formbody);
+
 fastify.register(fastifyCookie);
-fastify.register(authRoutes, {prefix: 'auth'});
 
 fastify.register(fastifyJwt, {
     secret: JWT_SECRET,
@@ -25,6 +26,18 @@ fastify.register(fastifyJwt, {
         cookieName: 'access_token',
         signed: false,
     },
+});
+
+fastify.register(formbody);
+fastify.register(authRoutes, { prefix: 'auth' });
+
+
+fastify.ready(err => {
+    if (err) {
+        fastify.log.error('JWT plugin failed to load:', err);
+    } else {
+        fastify.log.info('JWT plugin successfully loaded');
+    }
 });
 
 fastify.decorate("authenticate", async function (request, reply) {
@@ -49,7 +62,6 @@ fastify.get('/connection_db', async (_, reply) => {
         })
     }
 })
-
 
 const start = async () => {
     try {

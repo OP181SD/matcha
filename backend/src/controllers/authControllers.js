@@ -1,5 +1,6 @@
 import { modelLogin, modelRegister, modelUpdateFields} from "../models/User.js";
 import { validateRegisterFields, validateDuplicateFields } from '../validators/authValidation.js';
+import { fastify } from '../app.js';
 
 export async function authRegister(request, reply) {
     
@@ -10,17 +11,22 @@ export async function authRegister(request, reply) {
     if (!isUnique) return;
 
     try {
-    
         const user = await modelRegister(request);
-
-        return reply.code(200).send({
-            message: 'Inscription réussie',
-            userId: user.id,
-            username: user.username,
-            email: user.email,
-        });
+        if (user)
+        {  
+            const token = fastify.jwt.sign({ id: user.id }, { expiresIn: '1h' });
+            reply
+            .setCookie('access_token',token,{
+                httpOnly: true,
+                secure: false,
+                sameSite: 'Strict',
+                path: '/'
+            })
+            .send({ authRegister: 'Etape 1 Ok', userid: user.id });
+        }
     } catch (err) {
-        return reply.code(500).send({ error: 'Erreur lors de l\'inscription' });
+        console.error('Erreur dans authRegister :', err); 
+        return reply.code(500).send({ authRegisterror: 'Erreur lors de l\'inscription' });
     }
 }
 
