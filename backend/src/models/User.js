@@ -11,6 +11,16 @@ export async function modelRegister(request) {
     return result.rows[0];
 }
 
+export async function modelRegisterPartTwo(request, id) {
+    const { firstname} = request.body;
+
+    const result = await request.server.pg.query(
+        'UPDATE users SET firstname = $1 WHERE id = $2 RETURNING id, firstname;',
+        [firstname, id]
+    );
+    return result.rows[0];
+}
+
 export async function modelLogin(request) {
     const { log, password } = request.body;
 
@@ -39,9 +49,9 @@ export async function modelLogin(request) {
 }
 
 export async function modelUpdateFields(request) {
-    const { username, id } = request.body;
+    const { firstname, id } = request.body;
 
-    if (!username || !id) {
+    if (!firstname || !id) {
         throw new Error('Champs "username" et "id" requis.');
     }
 
@@ -52,19 +62,16 @@ export async function modelUpdateFields(request) {
     return result.rows[0];
 }
 
-export async function modelId(request, reply) {
-    const { id } = request.body;
-
+export async function modelId(request, id) {
     if (!id) {
-        return reply.code(400).send({ error: 'ID non fourni' });
+        throw new Error('ID non fourni');
     }
 
     const search = await request.server.pg.query('SELECT * FROM users WHERE id = $1', [id]);
     if (search.rows.length === 0) {
-        return reply.code(400).send({ error: 'Aucun utilisateur trouvé' });
+        throw new Error('Aucun utilisateur trouvé');
     }
-
-    return reply.code(200).send({ modelId: search.rows[0] });
+    return search.rows[0];
 }
 
 export async function modelDeleteAccount(request, reply) {

@@ -25,7 +25,7 @@ export function Login() {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                credentials: 'include', // Pour envoyer et recevoir les cookies
+                credentials: 'include', // Pour envoyer les cookies
                 body: JSON.stringify(formData)
             });
 

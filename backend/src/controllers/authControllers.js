@@ -1,4 +1,4 @@
-import { modelLogin, modelRegister, modelUpdateFields} from "../models/User.js";
+import { modelLogin, modelRegister, modelUpdateFields, modelRegisterPartTwo} from "../models/User.js";
 import { validateRegisterFields, validateDuplicateFields } from '../validators/authValidation.js';
 import { fastify } from '../app.js';
 
@@ -14,7 +14,7 @@ export async function authRegister(request, reply) {
         const user = await modelRegister(request);
         if (user)
         {  
-            const token = fastify.jwt.sign({ id: user.id }, { expiresIn: '30s' });
+            const token = fastify.jwt.sign({ id: user.id }, { expiresIn: '1h' });
             reply
             .setCookie('access_token',token,{
                 httpOnly: true,
@@ -44,6 +44,28 @@ export async function authUpdateFields(request, reply) {
     }
 }
 
+
+export async function authRegisterPartTwo(request, reply) {
+
+   const token = request.cookies.access_token;
+   const decoded = fastify.jwt.verify(token);
+
+   if (!token) {
+       return reply.code(401).send({ error: 'Token manquant' });
+   } 
+    try {
+         const user = await modelRegisterPartTwo(request, decoded.id);
+         if (user) {
+              reply.code(200).send({ authRegisterPartTwo: 'Etape 2 Ok' });
+         } else {
+              reply.code(500).send({ authRegisterPartTwoError: 'Erreur lors de l\'inscription' });
+         }
+    } catch (err) {
+         console.error('Erreur dans authRegisterPartTwo :', err); 
+         return reply.code(500).send({ authRegisterPartTwoError: 'Erreur lors de l\'inscription' });
+    }
+}
+
 export async function authLogin(request, reply) {
     try {
    
@@ -61,3 +83,16 @@ export async function authLogin(request, reply) {
         });
     }
 }
+
+
+export async function authLogout(_, reply) {
+    try {
+        reply
+            .clearCookie('access_token')
+            .code(200)
+            .send({ authLogout: 'Déconnexion réussie' });
+    } catch (error) {
+        reply.code(500).send({ authLogoutError: 'Erreur lors de la déconnexion' });
+    }
+}
+
