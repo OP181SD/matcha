@@ -7,7 +7,7 @@ import { AuthToken, testCookieRoute } from '../controllers/authControllers.js';
 export default async function authRoutes(fastify) {
   fastify.post('/register', AuthRegister);
   fastify.post('/login', (request, reply) => {
-    return AuthLogin(request, reply);
+    return AuthLogin(request, reply, fastify);
   });
 
   fastify.put('/update', async (request, reply) => {

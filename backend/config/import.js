@@ -4,6 +4,8 @@ import dotenv from 'dotenv';
 import bycrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
+
+
 dotenv.config()
 
 export const fastify = Fastify ({
@@ -22,5 +24,5 @@ fastify.register(fastifyPostgres, {
     
 });
 
-export const SECRET_KEY = 'MATCHACRPYT';
+export const SECRET_KEY = process.env.JWT_SECRET;
 export const API_URL = 'http://127.0.0.1:5001';

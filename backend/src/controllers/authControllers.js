@@ -1,6 +1,5 @@
 import { ModelRegister, ModelDuplicate, ModelLogin, ModelUpdate } from '../models/User.js';
-import { byCryptCompare, generateToken, verifyToken, SECRET_KEY } from '../../config/import.js';
-
+import { fastify, byCryptCompare, generateToken, verifyToken, SECRET_KEY } from '../../config/import.js';
 export const AuthRegister = async (request, reply) => {
 
   const { username, email, password, confirmPassword } = request.body;
@@ -30,29 +29,24 @@ export const AuthRegister = async (request, reply) => {
 export const getToken = async (username, email) => {
   const payload = { username, email };
   return generateToken(payload, SECRET_KEY, {
-    expiresIn: '30 seconds',
+    expiresIn: '1h',
   });
 };
 
 export const AuthToken = async (request, reply) => {
-  const authHeader = request.headers['authorization'];
-
-  if (!authHeader) {
-    return reply.code(401).send({ err_auth_login_auth_token: 'Token manquant' });
+  const token = request.cookies.token;
+  
+  if (!token) {
+    return reply.code(401).send({ error: 'Vous n\'êtes pas connecté' });
   }
-  const token = authHeader.split(' ')[1];
-
+  
   try {
     const decoded = verifyToken(token, SECRET_KEY);
-
     request.user = decoded;
-
     return reply.code(200).send({ message: 'Token valide', user: decoded });
-
   } catch (error) {
-    return reply.code(401).send({ err_auth_login: 'Token invalide ou expiré' });
+    return reply.code(401).send({ error: 'Session invalide ou expirée' });
   }
-
 };
 
 export const testCookieRoute = async (request, reply) => {
@@ -65,25 +59,30 @@ export const testCookieRoute = async (request, reply) => {
   }
 }
 
-export const AuthLogin = async (request, reply) => {
+export const AuthLogin = async (request, reply, fastify) => {
   const { identifier, password } = request.body;
-
   if (!identifier || !password) {
     return reply.code(400).send({ err_auth_login: 'Erreur : Identifiant ou mot de passe manquant.' });
   }
-
   const user = await ModelLogin(identifier);
   if (!user) {
     return reply.code(404).send({ err_auth_login: 'Erreur de connexion' });
   }
-
   let isPasswordValid = await byCryptCompare(password, user.password);
   if (!isPasswordValid) {
     return reply.code(401).send({ err_auth_login: 'Mot de passe incorrect.' });
   }
-
-  const token = await getToken(user.username, user.email);
-   reply
+  
+  // Utiliser la méthode de fastify-jwt pour générer le token
+  const token = fastify.jwt.sign({ 
+    username: user.username, 
+    email: user.email,
+    id: user.id  // Important d'inclure l'ID pour les routes qui en ont besoin
+  }, { 
+    expiresIn: '1h' 
+  });
+  
+  reply
    .setCookie('token', token, {
        path: '/', 
        httpOnly: true,  
@@ -93,11 +92,9 @@ export const AuthLogin = async (request, reply) => {
    .code(200)
    .send({
        message: 'Connexion réussie',
-       user
+       user: { ...user, password: undefined }  // Ne pas renvoyer le mot de passe hachée
    });
-  
 };
-
 
 export const AuthUpdate = async (request, reply) => {
   const { username, id } = request.body;
