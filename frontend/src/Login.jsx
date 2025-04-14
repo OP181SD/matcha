@@ -32,8 +32,8 @@ export function Login() {
             const data = await response.json();
 
             if (response.ok) {
-                // Login réussi
-                navigate('/dashboard'); // Redirection vers une page protégée
+
+                navigate('/dashboard'); 
             } else {
                 setError(data.message || 'Login échoué');
             }

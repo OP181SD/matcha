@@ -30,7 +30,7 @@ export function Signup() {
       const data = await response.json();
 
       if (response.ok) {
-        navigate('/login'); 
+        navigate('/profil'); 
         console.log('Inscription réussie', data);
       } else {
         setError(data.error || 'Une erreur est survenue');

@@ -15,7 +15,7 @@ export async function modelRegisterPartTwo(request, id) {
     const { firstname} = request.body;
 
     const result = await request.server.pg.query(
-        'UPDATE users SET firstname = $1 WHERE id = $2 RETURNING id, firstname;',
+        'UPDATE users SET firstname = $1, id = $2 RETURNING *;',
         [firstname, id]
     );
     return result.rows[0];

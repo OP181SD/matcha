@@ -15,25 +15,25 @@ export function Profil() {
     }
 
     try {
-      console.log('Envoi des données...', firstname); // Vérifie si le prénom est envoyé
+      console.log('Envoi des données...', firstname);
 
-      const response = await fetch('http://localhost:5001/profil', {
+      const response = await fetch('http://localhost:5001/auth/profil', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ firstname: firstname }),
-        credentials: 'include', // Envoie les cookies pour générer le token
+        credentials: 'include', 
       });
 
       const data = await response.json();
 
-      console.log('Réponse de l\'API:', data); // Vérifie la réponse de l'API
+      console.log('Réponse de l\'API:', data); 
 
       if (response.ok) {
         console.log('Redirection vers le dashboard');
-        // Inscription réussie, redirection vers le dashboard
-        navigate('/dashboard'); // Redirige vers le dashboard
+
+        navigate('/dashboard'); 
       } else {
         console.log('Erreur lors de l\'enregistrement', data.error);
         setError(data.error || 'Une erreur est survenue lors de l\'enregistrement.');
