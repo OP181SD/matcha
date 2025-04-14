@@ -44,7 +44,7 @@ fastify.get('/connection_db', async (_, reply) => {
         })
     } catch (error) {
         reply.status(500).send({
-            message: 'Erreur de connexion à la base de données',
+            message: 'Erreur de connexion à la base de données !',
             error: error.message,
         })
     }

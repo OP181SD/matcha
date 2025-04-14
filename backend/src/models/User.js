@@ -31,7 +31,10 @@ export async function modelLogin(request) {
             return user;
         }
     }
-
+    else
+    {
+        throw new Error("Aucun Compte");
+    }
     throw new Error('Identifiants incorrects');
 }
 
