@@ -48,6 +48,10 @@ fastify.decorate("authenticate", async function (request, reply) {
     }
 });
 
+fastify.get('/protected', { preHandler: fastify.authenticate }, async (request, reply) => {
+    reply.send({ message: 'Vous avez accès à la route protégée' });
+});
+
 fastify.get('/connection_db', async (_, reply) => {
     try {
         const client = await fastify.pg.connect();

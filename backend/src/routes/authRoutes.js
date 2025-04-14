@@ -1,4 +1,4 @@
-import { authRegister, authLogin, authUpdateFields } from "../controllers/authControllers.js";
+import { authRegister, authLogin, authUpdateFields} from "../controllers/authControllers.js";
 import { modelDeleteAccount,modelId } from "../models/User.js";
 
 export const authRoutes = async (fastify) => {

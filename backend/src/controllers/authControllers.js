@@ -14,7 +14,7 @@ export async function authRegister(request, reply) {
         const user = await modelRegister(request);
         if (user)
         {  
-            const token = fastify.jwt.sign({ id: user.id }, { expiresIn: '1h' });
+            const token = fastify.jwt.sign({ id: user.id }, { expiresIn: '30s' });
             reply
             .setCookie('access_token',token,{
                 httpOnly: true,
@@ -29,7 +29,6 @@ export async function authRegister(request, reply) {
         return reply.code(500).send({ authRegisterror: 'Erreur lors de l\'inscription' });
     }
 }
-
 
 export async function authUpdateFields(request, reply) {
     try {
