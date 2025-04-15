@@ -1,4 +1,4 @@
-import { modelRegister, modelUpdateFields, modelRegisterPartTwo, modelId } from "../models/User.js";
+import { modelRegister, modelUpdateFields, modelRegisterPartTwo} from "../models/User.js";
 import { validateRegisterFields, validateDuplicateFields } from '../validators/authValidation.js';
 
 export async function authRegister(request, reply) {
@@ -113,5 +113,3 @@ export async function authLogout(_, reply) {
         reply.code(500).send({ authLogoutError: 'Erreur lors de la déconnexion' });
     }
 }
-
-

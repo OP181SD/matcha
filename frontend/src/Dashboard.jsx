@@ -14,26 +14,42 @@ export function Dashboard() {
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    credentials: 'include', 
+                    credentials: 'include',
                 });
-    
+
                 if (!response.ok) {
                     throw new Error('Erreur lors de la récupération de l’utilisateur');
                 }
-    
+
                 const data = await response.json();
-                console.log('Données utilisateur récupérées:', data);  
+                console.log('Données utilisateur récupérées:', data);
                 setUser(data.user || data);
             } catch (err) {
-                setError(err.message); 
+                setError(err.message);
             }
         };
-    
+
         fetchUser();
     }, []);
+
     const handleLogout = async () => {
-        console.log("Déconnexion...");
-        navigate('/login'); 
+        try {
+            const response = await fetch('http://localhost:5001/auth/logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include', // Assure-toi que le cookie est envoyé
+            });
+            if (!response.ok) {
+                throw new Error('Erreur lors de la déconnexion');
+            }
+            const data = await response.json();
+            console.log('Déconnexion réussie:', data);
+            navigate('/login');
+        } catch (err) {
+            setError(err.message);
+        }
     };
 
     return (
