@@ -23,9 +23,8 @@ fastify.register(cors, {
 });
 
 
-// 🔌 Enregistrement des plugins dans l'ordre correct
 fastify.register(formbody);
-fastify.register(fastifyCookie); // doit être avant fastifyJwt pour gérer correctement les cookies
+fastify.register(fastifyCookie); 
 
 console.log("🗝️ JWT Secret utilisé :", JWT_SECRET);
 fastify.register(fastifyJwt, {
@@ -38,7 +37,7 @@ fastify.register(fastifyJwt, {
 
 // 🛠️ Helpers
 fastify.decorate('signToken', function (payload) {
-    return this.jwt.sign(payload, { expiresIn: '3h' });
+    return this.jwt.sign(payload, { expiresIn: '1h' });
 });
 
 fastify.decorate('verifyToken', async function (token) {
@@ -76,18 +75,16 @@ fastify.register(authRoutes, { prefix: 'auth' });
 
 
 fastify.get('/auth/me', { preHandler: fastify.authenticate }, async (request, reply) => {
-    const decoded = request.user;  // Le token a été vérifié et décodé dans le middleware 'authenticate'
+    const decoded = request.user;  
     
     try {
-        const client = await fastify.pg.connect();  // Connexion à la base de données pour obtenir le client
-        const user = await modelId(client, decoded.id);  // Appel à la fonction modelId en passant le client
-        client.release();  // Libère le client après l'utilisation
+        const user = await modelId(request.server.pg, decoded.id);  
         
         if (!user) {
             return reply.code(404).send({ error: 'Utilisateur non trouvé' });
         }
 
-        reply.send({ user });  // Envoie les informations de l'utilisateur dans la réponse
+        reply.send({ user });
     } catch (err) {
         console.error('Erreur lors de la récupération de l\'utilisateur :', err);
         reply.code(500).send({ error: 'Erreur interne du serveur' });
