@@ -1,136 +1,94 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Navigate } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export function Signup() {
+  const navigate = useNavigate(); 
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
 
-    const navigate = useNavigate();
-    const [formData, setFormData] = useState({
-        username: '',
-        email: '',
-        password: '',
-        confirmPassword: ''
-    });
+  const handleSubmit = async (e) => {
+    e.preventDefault(); 
 
-    const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
-    };
+    if (password !== confirmPassword) {
+      setError('Les mots de passe ne correspondent pas');
+      return;
+    }
 
-    const [error, setError] = useState("");
-    const [success, setSuccess] = useState("");
+    try {
+      const response = await fetch('http://localhost:5001/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, email, password, confirmPassword }),
+        credentials: 'include', 
+      });
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        console.log('Form Submitted', formData);
+      const data = await response.json();
 
-        fetch('http://127.0.0.1:5001/register', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(formData),
-        })
-            .then(response => {
-                if (response.status === 400) {
-                    setError("Votre nom d'utilisateur ou votre email est déjà utilisé.");
-                    setTimeout(() => setError(''), 2000);
-                } else if (response.status === 201) {
-                    setSuccess("Inscription réussie avec succès !");
-                    navigate("/profil");
-                    setTimeout(() => setSuccess(''), 2000);
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Données reçues:', data);
-            })
-            .catch((error) => {
-                console.error('Erreur:', error);
-            });
-    };
+      if (response.ok) {
+        navigate('/profil'); 
+        console.log('Inscription réussie', data);
+      } else {
+        setError(data.error || 'Une erreur est survenue');
+      }
+    } catch (error) {
+      setError('Erreur de connexion au serveur');
+      console.error('Error:', error);
+    }
+  };
 
-    return (
-        <div className='h-screen flex justify-center items-center bg-matcha'>
-            <form className='bg-white p-8 rounded-lg shadow-lg w-96' onSubmit={handleSubmit}>
-                <h2 className='text-2xl font-bold text-center mb-6 text-pen'>Inscription</h2>
-                {success && <p className="text-green-500 font-bold text-sm text-center mb-4">{success}</p>}
-                {error && <p className="text-red-500 font-bold text-sm text-center mb-4">{error}</p>}
-
-                <div className='mb-4'>
-                    <label htmlFor='username' className='block text-pen font-semibold mb-2'>Nom</label>
-                    <input
-                        type='text'
-                        id='username'
-                        name='username'
-                        value={formData.username}
-                        onChange={handleChange}
-                        autoComplete="username"
-                        className='w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-tea'
-                        required
-                    />
-                </div>
-
-                <div className='mb-4'>
-                    <label htmlFor='email' className='block text-pen font-semibold mb-2'>Email</label>
-                    <input
-                        type='email'
-                        id='email'
-                        name='email'
-                        value={formData.email}
-                        onChange={handleChange}
-                        autoComplete="email"
-                        className='w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-tea'
-                        required
-                    />
-                </div>
-
-
-
-                <div className='mb-4'>
-                    <label htmlFor='password' className='block text-pen font-semibold mb-2'>Mot de passe</label>
-                    <input
-                        type='password'
-                        id='password'
-                        name='password'
-                        value={formData.password}
-                        onChange={handleChange}
-                        autoComplete="new-password"
-                        className='w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-tea'
-                        required
-                    />
-                </div>
-
-                <div className='mb-4'>
-                    <label htmlFor='confirm-password' className='block text-pen font-semibold mb-2'>Confirmer le mot de passe</label>
-                    <input
-                        type='password'
-                        id='confirm-password'
-                        name='confirmPassword'
-                        value={formData.confirmPassword}
-                        onChange={handleChange}
-                        autoComplete="new-password"
-                        className='w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-tea'
-                        required
-                    />
-                </div>
-
-                <button
-                    type='submit'
-                    className='w-full mb-4 bg-tea text-white p-2 rounded-md hover:bg-[#74a12e] transition'>
-                    S'inscrire
-                </button>
-
-                <Link to="/">
-                    <button
-                        className='w-full bg-tea text-white p-2 rounded-md hover:bg-[#74a12e] transition'>
-                        Retour
-                    </button>
-                </Link>
-            </form>
+  return (
+    <div>
+      <h2>Inscription</h2>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label htmlFor="username">Nom d'utilisateur :</label>
+          <input
+            type="text"
+            id="username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
         </div>
-    );
+        <div>
+          <label htmlFor="email">Email :</label>
+          <input
+            type="email"
+            id="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label htmlFor="password">Mot de passe :</label>
+          <input
+            type="password"
+            id="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label htmlFor="confirmPassword">Confirmer le mot de passe :</label>
+          <input
+            type="password"
+            id="confirmPassword"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+          />
+        </div>
+        {error && <p style={{ color: 'red' }}>{error}</p>}
+        <button type="submit">S'inscrire</button>
+      </form>
+      <p>Déjà un compte ? <Link to="/login">Se connecter</Link></p>
+    </div>
+  );
 }
