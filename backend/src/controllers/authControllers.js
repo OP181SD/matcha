@@ -1,4 +1,4 @@
-import { modelRegister, modelUpdateFields, modelRegisterPartTwo} from "../models/User.js";
+import { modelRegister, modelLogin, modelUpdateFields, modelRegisterPartTwo} from "../models/User.js";
 import { validateRegisterFields, validateDuplicateFields } from '../validators/authValidation.js';
 
 export async function authRegister(request, reply) {
@@ -72,33 +72,40 @@ export async function authRegisterPartTwo(request, reply) {
     }
 }
 
+
 export async function authLogin(request, reply) {
-    try {
+  try {
 
-        const token = request.cookies.access_token;
 
-        if (!token) {
-            return reply.code(401).send({
-                authLoginError: 'Token manquant',
-            });
-        }
+      // Exemple de fonction de validation dans tes modèles
+      const user = await modelLogin(request); // par exemple: recherche par email/username + vérification mot de passe
 
-        const decoded = await request.server.verifyToken(token);
-        console.log("✅ Token décodé :", decoded);
+      if (!user) {
+          return reply.code(401).send({ authLoginError: 'Identifiants invalides' });
+      }
 
-        return reply.code(200).send({
-            authLoginSucces: 'Connexion réussie',
-            userId: decoded.id,
-            token: token
-        });
+      // Crée un token
+      const token = request.server.signToken({ id: user.id });
 
-    } catch (error) {
+      // Définit le cookie
+      reply
+          .setCookie('access_token', token, {
+              httpOnly: true,
+              secure: false, // true en prod avec HTTPS
+              sameSite: 'Lax',
+              path: '/',
+          })
+          .code(200)
+          .send({
+              authLoginSucces: 'Connexion réussie',
+              userId: user.id,
+              token: token
+          });
 
-        console.error("Erreur de vérification du token :", error.message);
-        return reply.code(401).send({
-            authLoginError: 'Token invalide ou expiré',
-        });
-    }
+  } catch (error) {
+      console.error('Erreur lors de la connexion :', error.message);
+      reply.code(500).send({ authLoginError: 'Erreur serveur' });
+  }
 }
 
 

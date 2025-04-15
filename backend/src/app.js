@@ -1,5 +1,5 @@
-import Fastify from 'fastify';
-import fastifyPostgres from '@fastify/postgres';
+
+import { fastify, fastifyPostgres } from '../config/import.js';
 import fastifyJwt from '@fastify/jwt';
 import fastifyCookie from '@fastify/cookie';
 import formbody from '@fastify/formbody';
@@ -7,8 +7,11 @@ import cors from '@fastify/cors';
 import { API_URL, DATABASE_URL, JWT_SECRET } from '../config/config.js';
 import { authRoutes } from './routes/authRoutes.js';
 import {modelId } from './models/User.js'
-// Création de l'instance Fastify
-export const fastify = Fastify({ logger: true });
+import profileRoutes from './routes/profileRoutes.js';
+
+
+
+
 
 // 🔌 Plugins
 fastify.register(fastifyPostgres, {
@@ -72,9 +75,10 @@ fastify.decorate("authenticate", async function (request, reply) {
 
 // 📦 Routes
 fastify.register(authRoutes);
+fastify.register(profileRoutes);
 
 
-fastify.get('/auth/me', { preHandler: fastify.authenticate }, async (request, reply) => {
+fastify.get('/me', { preHandler: fastify.authenticate }, async (request, reply) => {
     const decoded = request.user;  
     
     try {

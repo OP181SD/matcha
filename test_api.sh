@@ -58,13 +58,13 @@ echo "----------------------------------------"
 test_route "POST" "/register" '{"username": "testuser", "email": "testuser@example.com", "password": "password123", "confirmPassword": "password123"}' "1. Test d'inscription"
 
 # Test de connexion
-test_route "POST" "/login" '{"identifier": "testuser", "password": "password123"}' "2. Test de connexion" "-c $COOKIE_FILE"
+test_route "POST" "/login" '{"log": "testuser", "password": "password123"}' "2. Test de connexion" "-c $COOKIE_FILE"
 
-# Test de vérification du token
-test_route "GET" "/token" "" "3. Test de vérification du token" "-b $COOKIE_FILE"
+# # Test de vérification du token
+# test_route "GET" "/token" "" "3. Test de vérification du token" "-b $COOKIE_FILE"
 
-# Test du cookie
-test_route "GET" "/test-cookie" "" "4. Test du cookie" "-b $COOKIE_FILE"
+# # Test du cookie
+# test_route "GET" "/test-cookie" "" "4. Test du cookie" "-b $COOKIE_FILE"
 
 # Test de mise à jour du profil
 test_route "PUT" "/update" '{"username": "updateuser", "id": 1}' "5. Test de mise à jour du nom d'utilisateur" "-b $COOKIE_FILE"

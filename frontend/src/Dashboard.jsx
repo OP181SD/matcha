@@ -9,7 +9,7 @@ export function Dashboard() {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const response = await fetch('http://localhost:5001/auth/me', {
+                const response = await fetch('http://localhost:5001/me', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json'
@@ -34,7 +34,7 @@ export function Dashboard() {
 
     const handleLogout = async () => {
         try {
-            const response = await fetch('http://localhost:5001/auth/logout', {
+            const response = await fetch('http://localhost:5001/logout', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

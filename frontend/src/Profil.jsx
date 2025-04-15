@@ -17,7 +17,7 @@ export function Profil() {
     try {
       console.log('Envoi des données...', firstname);
 
-      const response = await fetch('http://localhost:5001/auth/profil', {
+      const response = await fetch('http://localhost:5001/profil', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
