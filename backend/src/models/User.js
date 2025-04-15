@@ -12,12 +12,18 @@ export async function modelRegister(request) {
 }
 
 export async function modelRegisterPartTwo(request, id) {
-    const { firstname} = request.body;
 
-    const result = await request.server.pg.query(
-        'UPDATE users SET firstname = $1, id = $2 RETURNING *;',
+    const { firstname } = request.body;
+    
+    const result = await  request.server.pg.query(
+        'UPDATE users SET firstname = $1 WHERE id = $2 RETURNING *;',
         [firstname, id]
     );
+
+    if (result.rows.length === 0) {
+        throw new Error('Aucun utilisateur mis à jour');
+    }
+
     return result.rows[0];
 }
 
@@ -62,17 +68,18 @@ export async function modelUpdateFields(request) {
     return result.rows[0];
 }
 
-export async function modelId(request, id) {
+export async function modelId(client, id) {
     if (!id) {
         throw new Error('ID non fourni');
     }
 
-    const search = await request.server.pg.query('SELECT * FROM users WHERE id = $1', [id]);
+    const search = await client.query('SELECT * FROM users WHERE id = $1', [id]);
     if (search.rows.length === 0) {
         throw new Error('Aucun utilisateur trouvé');
     }
     return search.rows[0];
 }
+
 
 export async function modelDeleteAccount(request, reply) {
     const { id } = request.body;
