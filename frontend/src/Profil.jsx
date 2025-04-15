@@ -1,71 +1,65 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export function Profil() {
-  const [prenom, setPrenom] = useState('');
-  const [photo, setPhoto] = useState(null);
+  const [firstname, setFirstname] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
-  const handlePrenomChange = (e) => {
-    setPrenom(e.target.value);
-  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  const handlePhotoChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setPhoto(URL.createObjectURL(file)); 
+    if (!firstname) {
+      setError('Le prénom est requis');
+      return;
+    }
+
+    try {
+      console.log('Envoi des données...', firstname);
+
+      const response = await fetch('http://localhost:5001/auth/profil', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ firstname: firstname }),
+        credentials: 'include', 
+      });
+
+      const data = await response.json();
+
+      console.log('Réponse de l\'API:', data); 
+
+      if (response.ok) {
+        console.log('Redirection vers le dashboard');
+
+        navigate('/dashboard'); 
+      } else {
+        console.log('Erreur lors de l\'enregistrement', data.error);
+        setError(data.error || 'Une erreur est survenue lors de l\'enregistrement.');
+      }
+    } catch (error) {
+      console.log('Erreur de connexion:', error);
+      setError('Erreur de connexion au serveur');
     }
   };
 
-  
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log('Prénom:', prenom);
-    console.log('Photo:', photo);
-  };
-
   return (
-    <div className="max-w-lg mx-auto p-6 bg-white rounded-lg shadow-lg">
-      <h1 className="text-2xl font-semibold text-center mb-6">Compléter votre profil</h1>
+    <div className="p-4">
+      <h2>Complétez votre profil</h2>
       <form onSubmit={handleSubmit}>
-        {/* Photo de profil */}
-        <div className="flex flex-col items-center mb-6">
-          <img
-            src={photo || 'https://via.placeholder.com/150'}
-            alt="Photo de profil"
-            className="rounded-full w-36 h-36 mb-4"
-          />
-          <div>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handlePhotoChange}
-              className="mb-2 text-sm text-gray-500"
-            />
-            <br />
-            <span className="text-sm text-gray-600">Changer la photo de profil</span>
-          </div>
-        </div>
-
-        {/* Champ pour le prénom */}
-        <div className="mb-6">
+        <div>
+          <label htmlFor="firstname">Prénom :</label>
           <input
             type="text"
-            value={prenom}
-            onChange={handlePrenomChange}
-            placeholder="Entrez votre prénom"
+            id="firstname"
+            value={firstname}
+            onChange={(e) => setFirstname(e.target.value)}
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
-
-        {/* Bouton de soumission */}
-        <div className="flex justify-center">
-          <button
-            type="submit"
-            className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            Valider
-          </button>
-        </div>
+        {error && <p style={{ color: 'red' }}>{error}</p>}
+        <button type="submit">Enregistrer</button>
       </form>
     </div>
   );

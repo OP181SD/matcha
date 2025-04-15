@@ -1,111 +1,115 @@
-import { ModelRegister, ModelDuplicate, ModelLogin, ModelUpdate } from '../models/User.js';
-import { byCryptCompare, generateToken, verifyToken, SECRET_KEY } from '../../config/import.js';
+import { modelRegister, modelUpdateFields, modelRegisterPartTwo} from "../models/User.js";
+import { validateRegisterFields, validateDuplicateFields } from '../validators/authValidation.js';
 
-export const AuthRegister = async (request, reply) => {
+export async function authRegister(request, reply) {
+    const isValidFields = await validateRegisterFields(request, reply);
+    if (!isValidFields) return;
 
-  const { username, email, password, confirmPassword } = request.body;
+    const isUnique = await validateDuplicateFields(request, reply);
+    if (!isUnique) return;
 
-  if (!username || !email || !password) {
-    return reply.code(400).send({ error: 'Tout les champs sont requis' });
-  }
+    try {
+        const user = await modelRegister(request);
+        if (user) {
+            const token = request.server.signToken({ id: user.id }); 
+            console.log("🔧 Token signé :", token);
 
-  if (password !== confirmPassword)
-  {
-      return reply.status(400).send({ message: 'Les mots de passe ne corresspond pas '});
-  }
-  
-  try {
-    const checkUsers = await ModelDuplicate(username, email);
-    if (checkUsers.error_users) {
-      return (reply.code(400).send({ error_users: checkUsers.error_users }));
+            reply
+                .setCookie('access_token', token, {
+                    httpOnly: true,
+                    secure: false, // true en prod avec HTTPS
+                    sameSite: 'Lax', 
+                    path: '/'
+                })
+                .send({
+                    authRegister: 'Etape 1 Ok',
+                    userid: user.id,
+                    token: token
+                });
+        }
+    } catch (err) {
+        console.error('Erreur dans authRegister :', err);
+        reply.code(500).send({ authRegisterror: 'Erreur lors de l\'inscription' });
     }
-    const users = await ModelRegister(username, email, password);
-    return reply.code(201).send({ ok: 'Users ajouter' }, users);
-
-  } catch (error) {
-    return (reply.code(500).send({ error: 'Une erreur est survenu ' }));
-  }
 }
 
-export const getToken = async (username, email) => {
-  const payload = { username, email };
-  return generateToken(payload, SECRET_KEY, {
-    expiresIn: '30 seconds',
-  });
-};
 
-export const AuthToken = async (request, reply) => {
-  const authHeader = request.headers['authorization'];
 
-  if (!authHeader) {
-    return reply.code(401).send({ err_auth_login_auth_token: 'Token manquant' });
-  }
-  const token = authHeader.split(' ')[1];
+export async function authUpdateFields(request, reply) {
+    try {
 
-  try {
-    const decoded = verifyToken(token, SECRET_KEY);
-
-    request.user = decoded;
-
-    return reply.code(200).send({ message: 'Token valide', user: decoded });
-
-  } catch (error) {
-    return reply.code(401).send({ err_auth_login: 'Token invalide ou expiré' });
-  }
-
-};
-
-export const testCookieRoute = async (request, reply) => {
-  const token = request.cookies.token; 
-  console.log('Token:', token); 
-  if (token) {
-    return reply.code(200).send({ message: 'Cookie trouvé', token });
-  } else {
-    return reply.code(400).send({ message: 'Cookie non trouvé' });
-  }
+        const up = await modelUpdateFields(request);
+        if (up) {
+            reply.code(200).send({ authUpdateFields: 'Succès' });
+        } else {
+            reply.code(500).send({ authFields_error: 'Échec de la mise à jour.' });
+        }
+    } catch (err) {
+        reply.code(400).send({ error_auth_fields: err.message });
+    }
 }
 
-export const AuthLogin = async (request, reply) => {
-  const { identifier, password } = request.body;
 
-  if (!identifier || !password) {
-    return reply.code(400).send({ err_auth_login: 'Erreur : Identifiant ou mot de passe manquant.' });
-  }
+export async function authRegisterPartTwo(request, reply) {
+    const token = request.cookies.access_token;
 
-  const user = await ModelLogin(identifier);
-  if (!user) {
-    return reply.code(404).send({ err_auth_login: 'Erreur de connexion' });
-  }
+    if (!token) {
+        return reply.code(401).send({ error: 'Token manquant' });
+    }
 
-  let isPasswordValid = await byCryptCompare(password, user.password);
-  if (!isPasswordValid) {
-    return reply.code(401).send({ err_auth_login: 'Mot de passe incorrect.' });
-  }
+    try {
+        const decoded = await request.server.verifyToken(token);
+        const user = await modelRegisterPartTwo(request, decoded.id);
 
-  const token = await getToken(user.username, user.email);
-   reply
-   .setCookie('token', token, {
-       path: '/', 
-       httpOnly: true,  
-       sameSite: 'Strict', 
-       maxAge: 3600 * 1000 
-   })
-   .code(200)
-   .send({
-       message: 'Connexion réussie',
-       user
-   });
-  
-};
+        if (user) {
+            reply.code(200).send({ authRegisterPartTwo: 'Etape 2 Ok' });
+        } else {
+            reply.code(500).send({ authRegisterPartTwoError: 'Erreur lors de l\'inscription' });
+        }
+    } catch (err) {
+        console.error('Erreur dans authRegisterPartTwo :', err);
+        return reply.code(500).send({ authRegisterPartTwoError: 'Erreur lors de l\'inscription' });
+    }
+}
+
+export async function authLogin(request, reply) {
+    try {
+
+        const token = request.cookies.access_token;
+
+        if (!token) {
+            return reply.code(401).send({
+                authLoginError: 'Token manquant',
+            });
+        }
+
+        const decoded = await request.server.verifyToken(token);
+        console.log("✅ Token décodé :", decoded);
+
+        return reply.code(200).send({
+            authLoginSucces: 'Connexion réussie',
+            userId: decoded.id,
+            token: token
+        });
+
+    } catch (error) {
+
+        console.error("Erreur de vérification du token :", error.message);
+        return reply.code(401).send({
+            authLoginError: 'Token invalide ou expiré',
+        });
+    }
+}
 
 
-export const AuthUpdate = async (request, reply) => {
-  const { username, id } = request.body;
-  if (!username) {
-    return (reply.code(400).send({ err_auth_update: 'Erreur champs a modifier manquant.' }));
-  }
-  const update = await ModelUpdate(username, id);
-  if (!update) {
-    return reply.code(404).send({ err_auth_login: 'Ce nom existe pas ' });
-  }
+
+export async function authLogout(_, reply) {
+    try {
+        reply
+            .clearCookie('access_token')
+            .code(200)
+            .send({ authLogout: 'Déconnexion réussie' });
+    } catch (error) {
+        reply.code(500).send({ authLogoutError: 'Erreur lors de la déconnexion' });
+    }
 }

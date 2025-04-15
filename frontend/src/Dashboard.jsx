@@ -1,158 +1,67 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export function Dashboard() {
-
     const navigate = useNavigate();
+    const [error, setError] = useState('');
     const [user, setUser] = useState(null);
-    const [newUsername, setNewUsername] = useState("");
-    const [isEditing, setIsEditing] = useState(false);
-    const [error, setError] = useState("");
-    const [success, setSuccess] = useState("");
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        const userInfo = localStorage.getItem("user");
-        if (!token || !userInfo) {
-            navigate("/");
-        } else {
-            const parsedUser = JSON.parse(userInfo);
-            setUser(parsedUser);
-            setNewUsername(parsedUser.username);
-        }
-    }, [navigate]);
+        const fetchUser = async () => {
+            try {
+                const response = await fetch('http://localhost:5001/auth/me', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                });
 
-    const ApiUpdate = async () => {
+                if (!response.ok) {
+                    throw new Error('Erreur lors de la récupération de l’utilisateur');
+                }
+
+                const data = await response.json();
+                console.log('Données utilisateur récupérées:', data);
+                setUser(data.user || data);
+            } catch (err) {
+                setError(err.message);
+            }
+        };
+
+        fetchUser();
+    }, []);
+
+    const handleLogout = async () => {
         try {
-            const response = await fetch('http://127.0.0.1:5001/update', {
-                method: 'PUT',
+            const response = await fetch('http://localhost:5001/auth/logout', {
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${localStorage.getItem("token")}`
                 },
-                body: JSON.stringify({
-                    id: user?.id,
-                    username: newUsername
-                }),
+                credentials: 'include', // Assure-toi que le cookie est envoyé
             });
-
             if (!response.ok) {
-                throw new Error("Échec de la modification");
+                throw new Error('Erreur lors de la déconnexion');
             }
-
-            setSuccess("Modification réussie avec succès !");
-            setTimeout(() => setSuccess(''), 2000);
-
-            const updatedUser = { ...user, username: newUsername };
-            localStorage.setItem("user", JSON.stringify(updatedUser));
-            setUser(updatedUser);
-            setIsEditing(false);
-        } catch (error) {
-
-
-            setError("Une erreur est survenue lors de la modification.");
-            setTimeout(() => setError(''), 2000);
+            const data = await response.json();
+            console.log('Déconnexion réussie:', data);
+            navigate('/login');
+        } catch (err) {
+            setError(err.message);
         }
-    };
-
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        if (newUsername.trim() !== user?.username) {
-            ApiUpdate();
-        } else {
-            setError("Erreur : Le nom d'utilisateur est identique à l'ancien.");
-            setTimeout(() => setError(''), 2000);
-        }
-    };
-
-    const handleChange = (event) => {
-        setNewUsername(event.target.value);
-    };
-
-    const clearDataInfo = () => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        setUser(null);
-        navigate("/");
     };
 
     return (
-        <div className="h-screen flex justify-center items-center bg-blue-100">
-            <div className="bg-white p-8 rounded-lg shadow-lg w-96">
-                <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">
-                    {user ? "Bienvenue !" : "Accès refusé"}
-                </h2>
-
-                {success && <p className="text-green-500 font-bold text-sm text-center mb-4">{success}</p>}
-                {error && <p className="text-red-500 font-bold text-sm text-center mb-4">{error}</p>}
-
-                {user ? (
-                    <>
-                        <p className="text-gray-700 mb-4">Votre connexion a réussi.</p>
-                        <div className="mb-4">
-                            <h3 className="font-semibold text-gray-800">Nom d'utilisateur actuel :</h3>
-                            <p className="text-gray-700 mb-4">{user.username}</p>
-
-                            {isEditing ? (
-                                <form onSubmit={handleSubmit}>
-                                    <div className="mb-4">
-                                        <label htmlFor="newUsername" className="block text-gray-800 font-semibold mb-2">
-                                            Nouveau nom d'utilisateur
-                                        </label>
-                                        <input
-                                            type="text"
-                                            id="newUsername"
-                                            value={newUsername}
-                                            onChange={handleChange}
-                                            className="w-full p-2 border border-gray-300 rounded-md mb-4"
-                                            placeholder="Entrez un nouveau nom d'utilisateur"
-                                            required
-                                        />
-                                    </div>
-                                    <button
-                                        type="submit"
-                                        className="w-full bg-green-500 text-white p-2 rounded-md hover:bg-green-600 transition"
-                                    >
-                                        Sauvegarder
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        onClick={() => setIsEditing(false)}
-                                        className="w-full bg-red-500 text-white p-2 rounded-md hover:bg-red-600 transition mt-4"
-                                    >
-                                        Annuler
-                                    </button>
-                                </form>
-                            ) : (
-
-                                <>
-                                  <button
-                                    onClick={() => setIsEditing(true)}
-                                    className="w-full bg-yellow-500 text-white p-2 rounded-md hover:bg-yellow-600 transition mt-4"
-                                >
-                                    Modifier le nom d'utilisateur
-                                </button>
-
-                       
-                                </>
-                              
-
-                            )}
-
-                        </div>
-                    </>
-                ) : (
-                    <p className="text-red-500 mb-4">Un problème est survenu.</p>
-                )}
-
-                <button
-                    onClick={clearDataInfo}
-                    className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 transition"
-                >
-                    Deconnexion
-                </button>
-            </div>
+        <div>
+            <h1>Bienvenue sur le dashboard !</h1>
+            {user ? (
+                <p>Connecté en tant que : <strong>{user.username}</strong></p>
+            ) : (
+                <p>Chargement des informations utilisateur...</p>
+            )}
+            {error && <p style={{ color: 'red' }}>{error}</p>}
+            <button onClick={handleLogout}>Se déconnecter</button>
         </div>
     );
 }
