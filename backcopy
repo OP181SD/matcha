@@ -1,0 +1,412 @@
+import { fastify } from '../config/import.js';
+import { AuthToken } from './controllers/authControllers.js';
+import authRoutes from './routes/authRoutes.js';
+import fastifyCors from '@fastify/cors';
+import fastifyCookie from 'fastify-cookie';
+import profileRoutes from './routes/profileRoutes.js';
+import fastifyJwt from '@fastify/jwt';
+
+fastify.register(fastifyJwt, {
+  secret: process.env.JWT_SECRET || 'votre_clé_secrète_par_défaut',
+  cookie: {
+    cookieName: 'token',
+    signed: false
+  }
+});
+
+fastify.decorate("authenticate", async function (request, reply) {
+  try {
+    // Utilise la méthode intégrée de fastify-jwt pour vérifier les cookies
+    await request.jwtVerify({ 
+      onlyCookie: true  // Force l'utilisation du cookie uniquement
+    });
+  } catch (err) {
+    console.error("Erreur d'authentification:", err.message);
+    reply.code(401).send({ 
+      error: 'Session invalide ou expirée, veuillez vous reconnecter',
+    });
+  }
+});
+
+
+fastify.register(fastifyCookie, {
+  secret: process.env.JWT_SECRET, 
+  parseOptions: {} 
+});
+
+fastify.register(fastifyCors, {
+  origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+});
+
+fastify.register(authRoutes);
+fastify.register(profileRoutes);
+
+
+console.log("Démarrage du serveur...");
+
+fastify.get('/', async () => {
+  const client = await fastify.pg.connect();
+  try {
+    const { rows } = await client.query('SELECT * FROM users');
+    console.log("Connected !!!");
+    return rows;
+  } finally {
+    client.release();
+  }
+});
+
+fastify.get('/protected', { preHandler: [fastify.authenticate] }, async (request, reply) => {
+  return reply.send({ message: 'Accès OK', user: request.user });
+});
+
+
+try {
+  await fastify.listen({ port: 5001, host: '0.0.0.0' });
+  console.log("Serveur démarré! sur http://localhost:5001");
+} catch (error) {
+  fastify.log.error(error);
+  process.exit(1);
+}import { ModelRegister, ModelDuplicate, ModelLogin, ModelUpdate } from '../models/User.js';
+import { fastify, byCryptCompare, generateToken, verifyToken, SECRET_KEY } from '../../config/import.js';
+export const AuthRegister = async (request, reply) => {
+
+  const { username, email, password, confirmPassword } = request.body;
+
+  if (!username || !email || !password) {
+    return reply.code(400).send({ error: 'Tout les champs sont requis' });
+  }
+
+  if (password !== confirmPassword)
+  {
+      return reply.status(400).send({ message: 'Les mots de passe ne corresspond pas '});
+  }
+  
+  try {
+    const checkUsers = await ModelDuplicate(username, email);
+    if (checkUsers.error_users) {
+      return (reply.code(400).send({ error_users: checkUsers.error_users }));
+    }
+    const users = await ModelRegister(username, email, password);
+    return reply.code(201).send({ ok: 'Users ajouter' }, users);
+
+  } catch (error) {
+    return (reply.code(500).send({ error: 'Une erreur est survenu ' }));
+  }
+}
+
+export const getToken = async (username, email) => {
+  const payload = { username, email };
+  return generateToken(payload, SECRET_KEY, {
+    expiresIn: '1h',
+  });
+};
+
+export const AuthToken = async (request, reply) => {
+  const token = request.cookies.token;
+  
+  if (!token) {
+    return reply.code(401).send({ error: 'Vous n\'êtes pas connecté' });
+  }
+  
+  try {
+    const decoded = verifyToken(token, SECRET_KEY);
+    request.user = decoded;
+    return reply.code(200).send({ message: 'Token valide', user: decoded });
+  } catch (error) {
+    return reply.code(401).send({ error: 'Session invalide ou expirée' });
+  }
+};
+
+export const testCookieRoute = async (request, reply) => {
+  const token = request.cookies.token; 
+  console.log('Token:', token); 
+  if (token) {
+    return reply.code(200).send({ message: 'Cookie trouvé', token });
+  } else {
+    return reply.code(400).send({ message: 'Cookie non trouvé' });
+  }
+}
+
+export const AuthLogin = async (request, reply, fastify) => {
+  const { identifier, password } = request.body;
+  if (!identifier || !password) {
+    return reply.code(400).send({ err_auth_login: 'Erreur : Identifiant ou mot de passe manquant.' });
+  }
+  const user = await ModelLogin(identifier);
+  if (!user) {
+    return reply.code(404).send({ err_auth_login: 'Erreur de connexion' });
+  }
+  let isPasswordValid = await byCryptCompare(password, user.password);
+  if (!isPasswordValid) {
+    return reply.code(401).send({ err_auth_login: 'Mot de passe incorrect.' });
+  }
+  
+  // Utiliser la méthode de fastify-jwt pour générer le token
+  const token = fastify.jwt.sign({ 
+    username: user.username, 
+    email: user.email,
+    id: user.id  // Important d'inclure l'ID pour les routes qui en ont besoin
+  }, { 
+    expiresIn: '1h' 
+  });
+  
+  reply
+   .setCookie('token', token, {
+       path: '/', 
+       httpOnly: true,  
+       sameSite: 'Strict', 
+       maxAge: 3600 * 1000 
+   })
+   .code(200)
+   .send({
+       message: 'Connexion réussie',
+       user: { ...user, password: undefined }  // Ne pas renvoyer le mot de passe hachée
+   });
+};
+
+export const AuthUpdate = async (request, reply) => {
+  const { username, id } = request.body;
+  if (!username) {
+    return (reply.code(400).send({ err_auth_update: 'Erreur champs a modifier manquant.' }));
+  }
+  const update = await ModelUpdate(username, id);
+  if (!update) {
+    return reply.code(404).send({ err_auth_login: 'Ce nom existe pas ' });
+  }
+}import { fastify } from '../../config/import.js';
+
+export const getLikes = async (request, reply) => {
+    const userId = request.user.id;
+    const client = await fastify.pg.connect();
+
+    const { rows } = await client.query(`
+        SELECT liker_id, created_at FROM likes
+        WHERE liked_id = $1 ORDER BY created_at DESC;
+    `, [userId]);
+
+    client.release();
+    return reply.send(rows);
+};
+import { fastify } from '../../config/import.js';
+
+export const uploadPicture = async (request, reply) => {
+    const userId = request.user.id;
+    const { url, is_profile_picture } = request.body;
+
+    const client = await fastify.pg.connect();
+
+    if (is_profile_picture) {
+        await client.query('UPDATE pictures SET is_profile_picture = FALSE WHERE user_id = $1', [userId]);
+    }
+
+    await client.query(`
+        INSERT INTO pictures (user_id, url, is_profile_picture)
+        VALUES ($1, $2, $3);
+    `, [userId, url, is_profile_picture]);
+
+    client.release();
+    return reply.send({ message: "Image enregistrée avec succès." });
+};
+import { createOrUpdateProfile } from "../models/Profile.js";
+
+
+export const handleProfile = async (request, reply) => {
+    const userId = request.user.id;
+    console.log("User ID from token:", userId); // Ajoutez ce log
+    const profileData = request.body;
+    try {
+        const profile = await createOrUpdateProfile(userId, profileData);
+        reply.send({ message: "Profil enregistré avec succès", profile });
+    } catch (error) {
+        console.error("Erreur détaillée:", error.message, error.stack); // Plus de détails
+        reply.status(500).send({ error: "Erreur lors de la création/mise à jour du profil.", details: error.message });
+    }
+};
+
+
+export const getProfileById = async (request, reply) => {
+    const profileId = request.params.id;
+
+    const client = await fastify.pg.connect();
+    const { rows } = await client.query(`
+        SELECT first_name, last_name, gender, sexual_preferences, biography, fame_rating, latitude, longitude, last_connection 
+        FROM profiles WHERE user_id = $1;
+    `, [profileId]);
+
+    client.release();
+
+    if (rows.length === 0) {
+        return reply.code(404).send({ error: "Profil introuvable." });
+    }
+
+    return reply.send(rows[0]);
+};
+import { fastify } from '../../config/import.js';
+
+export const addTags = async (request, reply) => {
+    const userId = request.user.id;
+    const { tags } = request.body;
+
+    const client = await fastify.pg.connect();
+
+    for (const tag of tags) {
+        let { rowCount } = await client.query('SELECT id FROM tags WHERE name = $1', [tag]);
+        let tagId;
+        if (rowCount === 0) {
+            const { rows } = await client.query('INSERT INTO tags (name) VALUES ($1) RETURNING id', [tag]);
+            tagId = rows[0].id;
+        } else {
+            const { rows } = await client.query('SELECT id FROM tags WHERE name = $1', [tag]);
+            tagId = rows[0].id;
+        }
+
+        await client.query(`
+            INSERT INTO profile_tags (profile_id, tag_id)
+            VALUES ($1, $2) ON CONFLICT DO NOTHING;
+        `, [userId, tagId]);
+    }
+
+    client.release();
+    return reply.send({ message: "Tags ajoutés avec succès", tags });
+};
+import { fastify } from '../../config/import.js';
+
+export const getViews = async (request, reply) => {
+    const userId = request.user.id;
+    const client = await fastify.pg.connect();
+
+    const { rows } = await client.query(`
+        SELECT viewer_id, viewed_at FROM views
+        WHERE viewed_id = $1 ORDER BY viewed_at DESC;
+    `, [userId]);
+
+    client.release();
+    return reply.send(rows);
+};
+import { fastify } from "../../config/import.js";
+
+export const createOrUpdateProfile = async (userId, data) => {
+    const { first_name, last_name, gender, sexual_preferences, biography, latitude, longitude, image_url } = data;
+    
+    // Vérifier si le profil existe déjà pour cet utilisateur
+    const { rowCount } = await fastify.pg.query('SELECT * FROM profiles WHERE user_id = $1', [userId]);
+    
+    if (rowCount > 0) {
+        // Mettre à jour le profil existant
+        const { rows } = await fastify.pg.query(`
+          UPDATE profiles SET 
+            first_name=$1, last_name=$2, gender=$3, sexual_preferences=$4, biography=$5,
+            latitude=$6, longitude=$7, image_url=$8, last_connection=NOW()
+          WHERE user_id=$9 RETURNING *;
+        `, [first_name, last_name, gender, sexual_preferences, biography, latitude, longitude, image_url, userId]);
+        return rows[0];
+    } else {
+        // Créer un nouveau profil
+        const { rows } = await fastify.pg.query(`
+          INSERT INTO profiles (user_id, first_name, last_name, gender, sexual_preferences, biography, latitude, longitude, image_url)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *;
+        `, [userId, first_name, last_name, gender, sexual_preferences, biography, latitude, longitude, image_url]);
+        return rows[0];
+    }
+};import { fastify, byCryptHash } from "../../config/import.js";
+
+export const ModelDuplicate = async (username, email) => {
+    const users = 'SELECT * FROM users WHERE username=$1 OR email=$2';
+    const { rowCount } = await fastify.pg.query(users, [username, email]);
+    if (rowCount > 0) {
+        return { error_users: 'Ce nom d\'utilisateur ou cet email est déjà pris. Veuillez en choisir un autre.' };
+    }
+    return {ok_users: 'Ok'};
+};
+
+export const ModelHashedPassword = async (password) => {
+   const hashedPassword = await byCryptHash(password, 10);
+   return hashedPassword;
+};
+
+export const ModelRegister = async (username, email ,password) => {
+    const insert = `INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING *;`;
+    const hashedPassword = await ModelHashedPassword(password);
+    const { rows } = await fastify.pg.query(insert, [username, email, hashedPassword]);
+    return rows;
+};
+
+export const ModelLogin = async (identifier) => {
+    console.log("Identifier reçu! :", identifier); 
+
+    const log = 'SELECT * FROM users WHERE username=$1 OR email=$2';
+    const { rows } = await fastify.pg.query(log, [identifier, identifier]); 
+
+    if (rows.length > 0) {
+        console.log("Identifier reçu! :",rows[0].id);
+        return rows[0];
+    }
+    return null;  
+};
+
+export const ModelUpdate = async (username, id) => {
+    try {
+    
+      const update = 'UPDATE users SET username = $1 WHERE id = $2 RETURNING *';
+      
+    
+      const { rows } = await fastify.pg.query(update, [username, id]);
+  
+    
+      if (rows.length > 0) {
+        console.log("User updated, new username: ", rows[0].username);
+        return { status: 'success', user: rows[0] };
+      }
+  
+    
+      console.log("User not found for the given ID");
+      return { status: 'error', message: 'User not found' };
+  
+    } catch (error) {
+     
+      console.error('Error updating user:', error);
+      return { status: 'error', message: 'An error occurred during the update' };
+    }
+  };
+  import { AuthRegister, AuthUpdate } from '../controllers/authControllers.js';
+import { AuthLogin } from '../controllers/authControllers.js';
+import { AuthToken, testCookieRoute } from '../controllers/authControllers.js';
+
+
+
+export default async function authRoutes(fastify) {
+  fastify.post('/register', AuthRegister);
+  fastify.post('/login', (request, reply) => {
+    return AuthLogin(request, reply, fastify);
+  });
+
+  fastify.put('/update', async (request, reply) => {
+    return AuthUpdate(request, reply);
+  });
+
+  fastify.get('/token', async (request, reply) => {
+    return AuthToken(request, reply);
+  }
+  );
+
+  fastify.get('/test-cookie', testCookieRoute);
+}
+
+
+import { handleProfile } from "../controllers/profileController.js";
+import { addTags } from "../controllers/tagsController.js"; // Ajoute cette ligne
+import { uploadPicture } from "../controllers/pictureController.js"; // Si ce n'est pas déjà fait
+import { getLikes } from "../controllers/likesController.js"; // Si ce n'est pas déjà fait
+import { getViews } from "../controllers/viewsController.js"; // Si ce n'est pas déjà fait
+import { getProfileById } from "../controllers/profileController.js"
+
+export default async function profileRoutes(fastify, opts) {
+    fastify.post('/profile', { preHandler: [fastify.authenticate] }, handleProfile);
+    fastify.post('/tags/add', { preHandler: [fastify.authenticate] }, addTags);
+    fastify.post('/picture/upload', { preHandler: [fastify.authenticate] }, uploadPicture);
+    fastify.get('/likes', { preHandler: [fastify.authenticate] }, getLikes);
+    fastify.get('/views', { preHandler: [fastify.authenticate] }, getViews);
+    fastify.get('/profile/:id', getProfileById);
+}
