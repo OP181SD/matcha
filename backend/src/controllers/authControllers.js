@@ -72,47 +72,44 @@ export async function authRegisterPartTwo(request, reply) {
     }
 }
 
-export const AuthLogin = async (request, reply) => {
-  const { identifier, password } = request.body;
+export async function authLogin(request, reply) {
+    try {
 
-  if (!identifier || !password) {
-    return reply.code(400).send({ err_auth_login: 'Erreur : Identifiant ou mot de passe manquant.' });
-  }
+        const token = request.cookies.access_token;
 
-  const user = await ModelLogin(identifier);
-  if (!user) {
-    return reply.code(404).send({ err_auth_login: 'Erreur de connexion' });
-  }
+        if (!token) {
+            return reply.code(401).send({
+                authLoginError: 'Token manquant',
+            });
+        }
 
-  let isPasswordValid = await byCryptCompare(password, user.password);
-  if (!isPasswordValid) {
-    return reply.code(401).send({ err_auth_login: 'Mot de passe incorrect.' });
-  }
+        const decoded = await request.server.verifyToken(token);
+        console.log("✅ Token décodé :", decoded);
 
-  const token = await getToken(user.username, user.email);
-   reply
-   .setCookie('token', token, {
-       path: '/', 
-       httpOnly: true,  
-       sameSite: 'Strict', 
-       maxAge: 3600 * 1000 
-   })
-   .code(200)
-   .send({
-       message: 'Connexion réussie',
-       user
-   });
-  
-};
+        return reply.code(200).send({
+            authLoginSucces: 'Connexion réussie',
+            userId: decoded.id,
+            token: token
+        });
+
+    } catch (error) {
+
+        console.error("Erreur de vérification du token :", error.message);
+        return reply.code(401).send({
+            authLoginError: 'Token invalide ou expiré',
+        });
+    }
+}
 
 
-export const AuthUpdate = async (request, reply) => {
-  const { username, id } = request.body;
-  if (!username) {
-    return (reply.code(400).send({ err_auth_update: 'Erreur champs a modifier manquant.' }));
-  }
-  const update = await ModelUpdate(username, id);
-  if (!update) {
-    return reply.code(404).send({ err_auth_login: 'Ce nom existe pas ' });
-  }
+
+export async function authLogout(_, reply) {
+    try {
+        reply
+            .clearCookie('access_token')
+            .code(200)
+            .send({ authLogout: 'Déconnexion réussie' });
+    } catch (error) {
+        reply.code(500).send({ authLogoutError: 'Erreur lors de la déconnexion' });
+    }
 }

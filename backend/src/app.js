@@ -71,7 +71,7 @@ fastify.decorate("authenticate", async function (request, reply) {
 });
 
 // 📦 Routes
-fastify.register(authRoutes, { prefix: 'auth' });
+fastify.register(authRoutes);
 
 
 fastify.get('/auth/me', { preHandler: fastify.authenticate }, async (request, reply) => {
