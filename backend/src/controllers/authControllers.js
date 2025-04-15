@@ -1,4 +1,4 @@
-import { modelLogin, modelRegister, modelUpdateFields, modelRegisterPartTwo} from "../models/User.js";
+import { modelLogin, modelRegister, modelUpdateFields, modelRegisterPartTwo, modelId} from "../models/User.js";
 import { validateRegisterFields, validateDuplicateFields } from '../validators/authValidation.js';
 import { fastify } from '../app.js';
 
@@ -96,3 +96,18 @@ export async function authLogout(_, reply) {
     }
 }
 
+
+
+export async function authMe(request, reply) {
+    try {
+      const token = request.cookies.access_token;
+      const decoded = fastify.jwt.verify(token);
+      const user = await modelId(request,decoded.id);
+      if (user)
+      {
+        reply.send({ user });
+      }
+    } catch (error) {
+      reply.code(401).send({ authMeError: 'Token invalide ou expiré' });
+    }
+  }
