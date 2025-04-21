@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS profiles (
     first_name VARCHAR(100),
     last_name VARCHAR(100),
     gender VARCHAR(50),
+    age DECIMAL(3),
     sexual_preferences VARCHAR(50),
     biography TEXT,
     fame_rating INTEGER DEFAULT 0,

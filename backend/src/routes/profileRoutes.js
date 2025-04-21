@@ -1,8 +1,8 @@
 import { handleProfile } from "../controllers/profileController.js";
-import { addTags } from "../controllers/tagsController.js"; // Ajoute cette ligne
-import { uploadPicture } from "../controllers/pictureController.js"; // Si ce n'est pas déjà fait
-import { getLikes } from "../controllers/likesController.js"; // Si ce n'est pas déjà fait
-import { getViews } from "../controllers/viewsController.js"; // Si ce n'est pas déjà fait
+import { addTags } from "../controllers/tagsController.js";
+import { uploadPicture } from "../controllers/pictureController.js"; 
+import { getLikes } from "../controllers/likesController.js"; 
+import { getViews } from "../controllers/viewsController.js"; 
 import { getProfileById } from "../controllers/profileController.js"
 
 export default async function profileRoutes(fastify, opts) {

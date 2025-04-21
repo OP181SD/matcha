@@ -74,6 +74,7 @@ profile_data='{
   "first_name": "John",
   "last_name": "Doe",
   "gender": "male",
+  "age": "26",
   "sexual_preferences": "heterosexual",
   "biography": "Je suis un développeur passionné",
   "latitude": 48.856614,

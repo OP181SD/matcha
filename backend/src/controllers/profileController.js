@@ -3,7 +3,7 @@ import { createOrUpdateProfile } from "../models/Profile.js";
 
 export const handleProfile = async (request, reply) => {
     const userId = request.user.id;
-    console.log("User ID from token:", userId); // Ajoutez ce log
+    console.log("User ID from token:", userId); 
     const profileData = request.body;
     try {
         const profile = await createOrUpdateProfile(userId, profileData);
@@ -20,7 +20,7 @@ export const getProfileById = async (request, reply, fastify) => {
 
     const client = await request.server.pg.connect();
     const { rows } = await client.query(`
-        SELECT first_name, last_name, gender, sexual_preferences, biography, fame_rating, latitude, longitude, last_connection 
+        SELECT first_name, last_name, gender, age, sexual_preferences, biography, fame_rating, latitude, longitude, last_connection 
         FROM profiles WHERE user_id = $1;
     `, [profileId]);
 
