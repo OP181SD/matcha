@@ -1,0 +1,41 @@
+{
+  "name": "matcha-backend",
+  "version": "1.0.0",
+  "description": "A Dating app",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "nodemon src/server.js",
+    "dev": "nodemon src/server.js",
+    "test": "node --test",
+    "test:e2e": "node smoke.e2e.mjs",
+    "test:socket": "node smoke.socket.mjs",
+    "test:notif": "node smoke.notif.mjs",
+    "test:actions": "node smoke.actions.mjs",
+    "test:ranking": "node smoke.ranking.mjs",
+    "maildev": "maildev"
+  },
+  "author": "Yassine",
+  "license": "ISC",
+  "devDependencies": {
+    "@ljharb/tsconfig": "^0.2.3",
+    "nodemon": "^3.1.9"
+  },
+  "dependencies": {
+    "@fastify/cookie": "^11.0.2",
+    "@fastify/cors": "^11.0.0",
+    "@fastify/formbody": "^8.0.2",
+    "@fastify/jwt": "^9.1.0",
+    "@fastify/postgres": "^6.0.2",
+    "bcrypt": "^5.1.1",
+    "dotenv": "^16.4.7",
+    "fastify": "^5.2.1",
+    "maildev": "^2.2.1",
+    "node-cron": "^4.2.1",
+    "nodemailer": "^6.10.1",
+    "pg": "^8.13.3",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1"
+  },
+  "type": "module",
+  "keywords": []
+}

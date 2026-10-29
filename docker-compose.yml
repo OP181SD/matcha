@@ -1,0 +1,111 @@
+services:
+  data-base:
+    image: docker.io/library/postgres:16.6
+    container_name: matcha-host
+    restart: always
+    env_file:
+      - .env
+    networks:
+      - matcha-net
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/nodejs/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: .
+      dockerfile: docker/nodejs/Dockerfile
+    restart: unless-stopped
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - matcha-net
+    depends_on:
+      data-base:
+        condition: service_healthy
+    env_file:
+      - .env
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/react/Dockerfile
+    restart: unless-stopped
+    networks:
+      - matcha-net
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - GENERATE_SOURCEMAP=false
+      - NODE_OPTIONS=--no-deprecation
+      - WDS_SOCKET_PORT=8080
+      - DANGEROUSLY_DISABLE_HOST_CHECK=true
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+  nginx:
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    networks:
+      - matcha-net
+    depends_on:
+      - frontend
+      - backend
+
+  mailhog:
+    image: docker.io/mailhog/mailhog:latest
+    container_name: mailhog
+    restart: unless-stopped
+    ports:
+      - "8025:8025"
+    networks:
+      - matcha-net
+
+  adminer:
+    image: docker.io/library/adminer:latest
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    networks:
+      - matcha-net
+
+  seed:
+    build:
+      context: ./docker/python
+      dockerfile: Dockerfile
+    depends_on:
+      data-base:
+        condition: service_healthy
+    networks:
+      - matcha-net
+    env_file:
+      - .env
+    restart: "no"
+
+  test:
+    build:
+      context: .
+      dockerfile: docker/test/Dockerfile
+    profiles: ["test"]
+    networks:
+      - matcha-net
+    env_file:
+      - .env
+    restart: "no"
+
+networks:
+  matcha-net:
+    driver: bridge
+
+volumes:
+  postgres_data:

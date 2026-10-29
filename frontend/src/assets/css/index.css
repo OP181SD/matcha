@@ -1,0 +1,149 @@
+
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --background: 28 76% 97%;
+    --foreground: 350 14% 31%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 350 14% 31%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 350 14% 31%;
+
+    --primary: 84 33% 63%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 344 61% 87%;
+    --secondary-foreground: 350 14% 31%;
+
+    --muted: 28 76% 97%;
+    --muted-foreground: 350 14% 45%;
+
+    --accent: 283 39% 53%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 37% 54%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 23 20% 85%;
+    --input: 23 20% 85%;
+    --ring: 84 33% 63%;
+
+    --radius: 0.75rem;
+}
+
+body {
+    @apply bg-matcha;
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: hsl(var(--muted-foreground));
+    opacity: 1;
+}
+
+@layer components {
+  .matcha-shadow    { box-shadow: 3px 3px 0 rgba(89, 67, 71, .28); }
+  .matcha-shadow-sm { box-shadow: 2px 2px 0 rgba(89, 67, 71, .28); }
+
+  .matcha-card {
+    @apply bg-matcha border border-pen/60 rounded-[20px] p-5;
+    box-shadow: 3px 3px 0 rgba(89, 67, 71, .28);
+  }
+
+  .matcha-eyebrow {
+    @apply text-[11px] font-extrabold tracking-widest uppercase text-pen/50;
+  }
+
+  .matcha-btn {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl
+           border border-pen/60 font-bold text-sm transition-transform
+           hover:-translate-x-0.5 hover:-translate-y-0.5
+           active:translate-x-0.5 active:translate-y-0.5;
+    box-shadow: 2px 2px 0 rgba(89, 67, 71, .28);
+  }
+  .matcha-btn-tea   { @apply bg-tea; }
+  .matcha-btn-pink  { @apply bg-pink/30; }
+  .matcha-btn-plain { @apply bg-matcha; }
+
+  .matcha-input {
+    @apply w-full px-4 py-2 rounded-xl border border-pen/60 bg-matcha
+           text-pen font-semibold placeholder-pen/50;
+  }
+}
+
+@media (max-width: 1023px) {
+  body.has-bottomnav { padding-bottom: 64px; }
+}
+
+.btn-style {
+    @apply border-[2px] text-pen text-[14px] sm:text-[20px] font-bold  font-quicksand px-4 py-2 sm:px-6 sm:py-3 rounded-md;
+  }
+
+.btn-inscription {
+    @apply bg-[#F2C9D4] border-[#594347] text-[16px] sm:text-[18px] md:text-[20px];
+}
+
+.btn-connexion {
+    @apply bg-[#A6BF80] border-[#594347] text-[16px] sm:text-[18px] md:text-xl;
+}
+
+.footer-style {
+    @apply absolute bottom-0 left-1/2 text-pen font-bold transform text-[16px] sm:text-[18px] md:text-[20px]
+    -translate-x-1/2 border-t-[2px] border-[#594347] px-4 py-2 whitespace-nowrap flex justify-center items-center;
+}
+
+.wrap-text {
+    word-wrap: break-word;
+}
+
+.rotate-y-0 {
+    transform: rotateY(0deg);
+  }
+
+  .rotate-y-180 {
+    transform: rotateY(180deg);
+  }
+
+  .perspective-\[1000px\] {
+    perspective: 1000px;
+  }
+
+  .mirror {
+    transform: scaleX(-1);
+  }
+
+  .rotate-x-180
+  {
+    transform: rotateX(180deg);
+  }
+
+@media (max-width: 639px) {
+  .card-responsive {
+    width: 300px;
+    min-height: 520px;
+
+    border-radius: 30px;
+  }
+}
+
+
+.Toastify__toast {
+  border: 2px solid #594347 !important;
+  border-radius: 14px !important;
+  color: #594347 !important;
+  font-weight: 600;
+  box-shadow: 0 4px 0 #594347 !important;
+}
+.Toastify__toast--success { background: #A6BF80 !important; }
+.Toastify__toast--error   { background: #F2C9D4 !important; }
+.Toastify__toast--info,
+.Toastify__toast--warning,
+.Toastify__toast--default  { background: #F7F1E8 !important; }
+.Toastify__toast-icon svg,
+.Toastify__close-button > svg { fill: #594347 !important; color: #594347 !important; }
+.Toastify__progress-bar { background: #594347 !important; }
